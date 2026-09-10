@@ -23,6 +23,8 @@ truncate table
   public.reservas,
   public.veiculo_precos_historico,
   public.veiculo_fotos,
+  public.preferencias_veiculo,
+  public.catalogo_modelos,
   public.aportes,
   public.planos,
   public.veiculos
@@ -140,7 +142,7 @@ values
   -- estorno de parte de a207 (ex.: PIX devolvido parcialmente por erro de valor)
   ('00000000-0000-0000-0000-00000000a208', '00000000-0000-0000-0000-0000000000b2', -100000, 'estorno', 'confirmado', 'pix', current_date - interval '25 days', '00000000-0000-0000-0000-0000000000a1', now() - interval '25 days', now() - interval '25 days', '00000000-0000-0000-0000-00000000a207'),
   -- aporte do mês corrente pendente
-  ('00000000-0000-0000-0000-00000000a209', '00000000-0000-0000-0000-0000000000b2', 250000, 'aporte', 'pendente', 'pix', current_date, null, null, now() - interval '1 day');
+  ('00000000-0000-0000-0000-00000000a209', '00000000-0000-0000-0000-0000000000b2', 250000, 'aporte', 'pendente', 'pix', current_date, null, null, now() - interval '1 day', null);
 -- Bruno confirmado = 7*250000 - 100000 = 1.650.000  -> meta Gol 1.900.000 -> falta 250.000 (R$ 2.500,00)
 
 -- ---- Carla (plano b3) -----------------------------------------------------
@@ -150,6 +152,43 @@ values
   ('00000000-0000-0000-0000-00000000a301', '00000000-0000-0000-0000-0000000000b3', 300000, 'aporte', 'confirmado', 'pix', current_date - interval '20 days', '00000000-0000-0000-0000-0000000000a1', now() - interval '20 days', now() - interval '20 days'),
   ('00000000-0000-0000-0000-00000000a302', '00000000-0000-0000-0000-0000000000b3', 200000, 'aporte', 'pendente',   'pix', current_date,                      null,                                   null,                       now() - interval '3 days');
 -- Carla confirmado = 300.000
+
+
+-- -----------------------------------------------------------------------------
+-- CATÁLOGO DE MODELOS PRÉ-FIXADOS (marca/modelo + faixa de anos)
+-- O cliente escolhe daqui ao registrar a preferência; quando um veículo
+-- desses entra no estoque, o cliente é notificado (mesmo sem ter os 50%).
+-- -----------------------------------------------------------------------------
+insert into public.catalogo_modelos (marca, modelo, ano_min, ano_max) values
+  ('Chevrolet',  'Onix',          2018, 2024),
+  ('Hyundai',    'HB20',          2018, 2024),
+  ('Hyundai',    'Creta',         2021, 2024),
+  ('Volkswagen', 'Gol',           2016, 2023),
+  ('Volkswagen', 'Polo',          2018, 2024),
+  ('Volkswagen', 'T-Cross',       2019, 2024),
+  ('Fiat',       'Argo',          2018, 2024),
+  ('Fiat',       'Pulse',         2021, 2024),
+  ('Toyota',     'Corolla',       2018, 2024),
+  ('Toyota',     'Corolla Cross', 2021, 2024),
+  ('Honda',      'Civic',         2017, 2024),
+  ('Honda',      'City',          2018, 2024),
+  ('Jeep',       'Renegade',      2019, 2024),
+  ('Jeep',       'Compass',       2019, 2024),
+  ('Nissan',     'Kicks',         2019, 2024)
+on conflict do nothing;
+
+
+-- -----------------------------------------------------------------------------
+-- PREFERÊNCIA DE VEÍCULO (CRM) — Ana já escolheu o Creta do catálogo.
+-- Serve para o onboarding NÃO aparecer para ela (só para quem nunca preencheu).
+-- -----------------------------------------------------------------------------
+insert into public.preferencias_veiculo
+  (plano_id, marca, modelo, ano_min, ano_max, valor_meta_centavos, catalogo_modelo_id)
+select '00000000-0000-0000-0000-0000000000b1', cm.marca, cm.modelo, cm.ano_min, cm.ano_max,
+       10000000, cm.id
+from public.catalogo_modelos cm
+where cm.marca = 'Hyundai' and cm.modelo = 'Creta'
+on conflict do nothing;
 
 
 -- -----------------------------------------------------------------------------
