@@ -58,7 +58,7 @@ export function VendedorForm({
       <BotaoSalvar />
       {estado.erro && <p className="txt-pequeno text-ambar">{estado.erro}</p>}
       {estado.sucesso && (
-        <p className="txt-pequeno text-azul-claro">Salvo.</p>
+        <p className="txt-pequeno text-ciano">Salvo.</p>
       )}
     </form>
   );

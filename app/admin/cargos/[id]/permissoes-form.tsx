@@ -54,7 +54,7 @@ export function PermissoesForm({
       </div>
 
       {estado.erro && <p className="text-sm text-ambar">{estado.erro}</p>}
-      {estado.sucesso && <p className="text-sm text-azul-claro">Permissões salvas.</p>}
+      {estado.sucesso && <p className="text-sm text-ciano">Permissões salvas.</p>}
 
       <BotaoSalvar />
     </form>

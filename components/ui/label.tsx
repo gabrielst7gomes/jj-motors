@@ -7,12 +7,14 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /**
- * Label — sentence case sempre, nunca all-caps espaçado (design/IDENTIDADE.md
- * seção 8: proibido explicitamente "label all-caps espaçado acima de cada
- * título" — inclui labels de formulário, que é onde o hábito mais se esconde).
+ * Label de campo de formulário — no mundo "instrumentação de bordo" o rótulo
+ * de campo é técnico: Chakra Petch, tracked, caixa alta (classe
+ * `.rotulo-campo`). Isso NÃO é o kicker decorativo proibido (rótulo tracked
+ * ACIMA de um título de página) — é o rótulo que nomeia um controle, que é
+ * legítimo e combina com o painel.
  */
 const labelVariants = cva(
-  "txt-pequeno font-medium text-cinza-texto peer-disabled:cursor-not-allowed peer-disabled:opacity-40",
+  "rotulo-campo peer-disabled:cursor-not-allowed peer-disabled:opacity-40",
 );
 
 const Label = React.forwardRef<

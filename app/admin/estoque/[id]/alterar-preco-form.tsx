@@ -33,7 +33,7 @@ export function AlterarPrecoForm({ veiculoId }: { veiculoId: string }) {
       <BotaoAlterar />
       {estado.erro && <p className="text-sm text-ambar">{estado.erro}</p>}
       {estado.sucesso && (
-        <p className="text-sm text-azul-claro">
+        <p className="text-sm text-ciano">
           Preço alterado. Se reduzido, clientes elegíveis são notificados.
         </p>
       )}

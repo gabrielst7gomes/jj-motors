@@ -29,7 +29,7 @@ export default async function ClientesPlanosPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div>
-          <h1 className="txt-titulo">Clientes e planos</h1>
+          <h1 className="txt-titulo text-branco">Clientes e planos</h1>
           <p className="mt-0.5 txt-pequeno text-cinza-texto">
             {planos.length} planos cadastrados.
           </p>
@@ -39,7 +39,7 @@ export default async function ClientesPlanosPage() {
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-white/10 bg-superficie shadow-card">
+      <div className="mostrador overflow-hidden">
         <Table className="tabela-densa">
           <TableHeader>
             <TableRow>
@@ -80,7 +80,7 @@ export default async function ClientesPlanosPage() {
                 <TableCell className="text-right">
                   <Link
                     href={`/admin/clientes/${plano.id}`}
-                    className="border-b border-azul-claro/40 txt-pequeno font-semibold text-azul-claro hover:border-azul-claro"
+                    className="border-b border-ciano/40 txt-pequeno font-semibold text-ciano hover:border-ciano"
                   >
                     Ver detalhes
                   </Link>

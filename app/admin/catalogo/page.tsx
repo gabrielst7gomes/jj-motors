@@ -11,7 +11,7 @@ export default async function CatalogoPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="txt-titulo">Catálogo de modelos</h1>
+          <h1 className="txt-titulo text-branco">Catálogo de modelos</h1>
           <p className="mt-0.5 max-w-[60ch] txt-pequeno text-cinza-texto">
             Modelos pré-fixados que o cliente pode escolher como &quot;carro
             desejado&quot;. Quando um veículo desses entra no estoque, o
@@ -23,7 +23,7 @@ export default async function CatalogoPage() {
         <NovoModeloCatalogo />
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-white/10 bg-superficie shadow-card">
+      <div className="mostrador overflow-hidden">
         {modelos.length === 0 ? (
           <p className="p-6 txt-pequeno text-cinza-texto">
             Nenhum modelo no catálogo ainda.

@@ -41,7 +41,7 @@ export default async function NotificacoesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="txt-titulo">Notificações</h1>
+        <h1 className="txt-titulo text-branco">Notificações</h1>
         <p className="mt-0.5 txt-pequeno text-cinza-texto">
           Fila e histórico de alertas via WhatsApp. Worker de envio na Fase 6.
         </p>
@@ -55,7 +55,7 @@ export default async function NotificacoesPage() {
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-white/10 bg-superficie shadow-card">
+      <div className="mostrador overflow-hidden">
         <Table className="tabela-densa">
           <TableHeader>
             <TableRow>
@@ -99,7 +99,7 @@ export default async function NotificacoesPage() {
               <TableRow>
                 <TableCell
                   colSpan={7}
-                  className="text-center text-muted-foreground"
+                  className="text-center text-cinza-texto"
                 >
                   Nenhuma notificação registrada ainda.
                 </TableCell>

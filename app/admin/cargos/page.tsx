@@ -18,7 +18,7 @@ export default async function CargosPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="txt-titulo">Cargos</h1>
+        <h1 className="txt-titulo text-branco">Cargos</h1>
         <p className="mt-0.5 txt-pequeno text-cinza-texto">
           Cada cargo define o percentual de comissão e as permissões dos
           vendedores atribuídos a ele.
@@ -27,7 +27,7 @@ export default async function CargosPage() {
 
       <NovoCargoForm />
 
-      <div className="overflow-hidden rounded-lg border border-white/10 bg-superficie shadow-card">
+      <div className="mostrador overflow-hidden">
         <Table className="tabela-densa">
           <TableHeader>
             <TableRow>
@@ -44,13 +44,13 @@ export default async function CargosPage() {
                 <TableCell className="text-right tabular-nums">
                   {(c.percentual_comissao * 100).toFixed(2)}%
                 </TableCell>
-                <TableCell className="text-muted-foreground">
+                <TableCell className="text-cinza-texto">
                   {c.descricao ?? "—"}
                 </TableCell>
                 <TableCell className="text-right">
                   <Link
                     href={`/admin/cargos/${c.id}`}
-                    className="text-sm text-primary underline underline-offset-2"
+                    className="text-sm text-ciano underline underline-offset-2"
                   >
                     Permissões
                   </Link>
@@ -61,7 +61,7 @@ export default async function CargosPage() {
               <TableRow>
                 <TableCell
                   colSpan={4}
-                  className="text-center text-muted-foreground"
+                  className="text-center text-cinza-texto"
                 >
                   Nenhum cargo cadastrado.
                 </TableCell>

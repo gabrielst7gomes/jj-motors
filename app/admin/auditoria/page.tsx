@@ -14,14 +14,14 @@ export default async function AuditoriaPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="txt-titulo">Auditoria</h1>
+        <h1 className="txt-titulo text-branco">Auditoria</h1>
         <p className="mt-0.5 txt-pequeno text-cinza-texto">
           Ações sensíveis: confirmar aporte, estornar, alterar preço, criar
           reserva, marcar como vendido.
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-white/10 bg-superficie shadow-card">
+      <div className="mostrador overflow-hidden">
         <Table className="tabela-densa">
           <TableHeader>
             <TableRow>
@@ -53,7 +53,7 @@ export default async function AuditoriaPage() {
               <TableRow>
                 <TableCell
                   colSpan={5}
-                  className="text-center text-muted-foreground"
+                  className="text-center text-cinza-texto"
                 >
                   Nenhum registro de auditoria ainda.
                 </TableCell>

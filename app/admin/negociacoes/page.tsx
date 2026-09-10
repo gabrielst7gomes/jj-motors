@@ -32,7 +32,7 @@ export default async function NegociacoesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="txt-titulo">Negociações</h1>
+        <h1 className="txt-titulo text-branco">Negociações</h1>
         <p className="mt-0.5 max-w-[62ch] txt-pequeno text-cinza-texto">
           Clientes que sinalizaram interesse num veículo. Vários clientes podem
           negociar o mesmo carro — nada fica travado. Atenda pelo WhatsApp e,
@@ -41,7 +41,7 @@ export default async function NegociacoesPage() {
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-white/10 bg-superficie shadow-card">
+      <div className="mostrador overflow-hidden">
         <Table className="tabela-densa">
           <TableHeader>
             <TableRow>
@@ -112,7 +112,7 @@ export default async function NegociacoesPage() {
                         href={wa}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 border-b border-azul-claro/40 txt-pequeno font-semibold text-azul-claro hover:border-azul-claro"
+                        className="inline-flex items-center gap-1.5 border-b border-ciano/40 txt-pequeno font-semibold text-ciano hover:border-ciano"
                       >
                         Abrir conversa
                       </a>
@@ -132,7 +132,7 @@ export default async function NegociacoesPage() {
               <TableRow>
                 <TableCell
                   colSpan={8}
-                  className="text-center text-muted-foreground"
+                  className="text-center text-cinza-texto"
                 >
                   Nenhuma negociação ainda.
                 </TableCell>

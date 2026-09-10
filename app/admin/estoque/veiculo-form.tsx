@@ -219,7 +219,7 @@ export function VeiculoForm({
       </fieldset>
 
       {!veiculo && previa !== null && (
-        <p className="rounded-md bg-azul-profundo/10 p-3 text-sm text-azul-claro">
+        <p className="rounded-sm border border-ciano/25 bg-ciano-fundo p-3 txt-pequeno text-ciano">
           {previa} cliente{previa === 1 ? "" : "s"} será{previa === 1 ? "" : "ão"}{" "}
           notificado{previa === 1 ? "" : "s"} por WhatsApp ao salvar este veículo.
         </p>
@@ -231,7 +231,7 @@ export function VeiculoForm({
         </p>
       )}
       {estado.sucesso && (
-        <p className="text-sm text-azul-claro">Veículo salvo com sucesso.</p>
+        <p className="text-sm text-ciano">Veículo salvo com sucesso.</p>
       )}
 
       <BotaoSalvar label={veiculo ? "Salvar alterações" : "Cadastrar veículo"} />

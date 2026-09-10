@@ -1,16 +1,16 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Monograma "JJ" — a unidade mínima de marca (design/IDENTIDADE.md V2).
- * Quadrado com gradiente vermelho e cantos arredondados, "JJ" em Archivo
- * Expanded 800 branco. Reaproveitado no favicon e nos ícones PWA (nesses
- * contextos usar a versão sólida, sem sombra — ver seção 7 de ativos).
+ * Monograma "JJ" — unidade mínima de marca. No mundo "instrumentação de
+ * bordo" é uma placa: quadrado de canto técnico, moldura vermelha fina +
+ * glow curto, "JJ" em Chakra Petch. Lê como um selo de painel, não um ícone
+ * de app.
  */
 export function LogoJJ({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "grid h-[38px] w-[38px] shrink-0 place-items-center rounded-sm gradiente-vermelho shadow-vermelho fonte-expandida txt-corpo font-extrabold text-branco",
+        "grid h-9 w-9 shrink-0 place-items-center rounded-sm border border-vermelho/60 bg-vermelho/12 font-mostrador text-sm font-bold tracking-[0.02em] text-branco shadow-[0_0_12px_-2px_hsl(var(--vermelho)/0.55)]",
         className,
       )}
       aria-hidden
@@ -20,16 +20,18 @@ export function LogoJJ({ className }: { className?: string }) {
   );
 }
 
-/** Bloco completo: monograma + "JJ MOTORS" + subtítulo "Compra Programada". */
+/** Bloco completo: placa + "JJ MOTORS" + subtítulo "Compra Programada". */
 export function MarcaCompleta() {
   return (
-    <div className="flex items-center gap-[11px]">
+    <div className="flex items-center gap-2.5">
       <LogoJJ />
       <div className="leading-tight">
-        <p className="fonte-expandida txt-pequeno font-bold tracking-wide">
-          JJ MOTORS
+        <p className="font-mostrador text-[0.8125rem] font-bold uppercase tracking-[0.14em] text-branco">
+          JJ Motors
         </p>
-        <p className="txt-micro text-cinza-texto">Compra Programada</p>
+        <p className="text-[0.625rem] uppercase tracking-[0.14em] text-cinza-inativo">
+          Compra Programada
+        </p>
       </div>
     </div>
   );

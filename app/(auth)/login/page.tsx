@@ -4,15 +4,15 @@ import { LoginForm } from "./login-form";
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center px-6">
+    <main className="flex min-h-screen items-center justify-center px-6 py-10">
       <div className="w-full max-w-sm">
-        <div className="mb-10 flex flex-col items-center gap-6">
+        <div className="mb-8 flex flex-col gap-5">
           <MarcaCompleta />
-          <p className="txt-pequeno text-cinza-texto">
-            Entre com seu e-mail e senha.
-          </p>
+          <h1 className="txt-titulo text-branco">Entrar no painel</h1>
         </div>
-        <LoginForm />
+        <div className="mostrador p-6">
+          <LoginForm />
+        </div>
       </div>
     </main>
   );

@@ -1,11 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 
 /**
- * Mapeia os enums de negócio para as variants de Badge documentadas em
- * design/IDENTIDADE.md seção 7. "Ativo"/"confirmado" usam a variant
- * `confirmado` (azul-claro, quadrado) — não `elegivel` (vermelho): vermelho
- * é reservado exclusivamente ao veredito de elegibilidade de compra, nunca
- * a "está tudo bem" genérico de status de registro.
+ * Mapeia os enums de negócio para as variants de Badge. "Ativo"/"confirmado"
+ * usam a variant `confirmado` (ciano, quadrado) — nunca `elegivel`
+ * (vermelho): vermelho é reservado ao veredito de elegibilidade de compra,
+ * nunca a "está tudo bem" genérico de status de registro.
  */
 const CONFIG_APORTE = {
   confirmado: { variant: "confirmado", label: "Confirmado" },

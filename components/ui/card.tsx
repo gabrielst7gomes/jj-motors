@@ -3,11 +3,13 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Card — fundo `superficie` (um degrau acima da base) com sombra suave e
- * cantos arredondados (design/IDENTIDADE.md V2.2). Um estado pode ganhar uma
- * borda de acento (vermelho/azul) passada via `className` no call site — não
- * é um variant aqui porque o significado da cor de acento é sempre
- * contextual (elegível, em progresso), não uma opção estética genérica.
+ * Card = MOSTRADOR. Não é um card fofo — é um painel de instrumento: moldura
+ * de 1px, canto técnico (--radius 6px), leve gradiente de vidro curvo vindo
+ * do topo. A classe `.mostrador` (globals.css) carrega tudo isso.
+ *
+ * Um estado pode acender a "luz de permissão" passando
+ * `className="mostrador-permissao"` (veredito: liberado) — não é um variant
+ * aqui porque a cor só tem significado contextual, nunca estético.
  */
 const Card = React.forwardRef<
   HTMLDivElement,
@@ -15,10 +17,7 @@ const Card = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn(
-      "rounded-lg border border-white/10 bg-superficie text-branco shadow-card",
-      className,
-    )}
+    className={cn("mostrador text-branco", className)}
     {...props}
   />
 ));
@@ -30,7 +29,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col gap-1.5 p-4", className)}
+    className={cn("flex flex-col gap-1 p-5", className)}
     {...props}
   />
 ));
@@ -60,7 +59,7 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-4 pt-0", className)} {...props} />
+  <div ref={ref} className={cn("p-5 pt-0", className)} {...props} />
 ));
 CardContent.displayName = "CardContent";
 
@@ -70,7 +69,7 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex items-center p-4 pt-0", className)}
+    className={cn("flex items-center p-5 pt-0", className)}
     {...props}
   />
 ));

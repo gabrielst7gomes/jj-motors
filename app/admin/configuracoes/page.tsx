@@ -11,7 +11,7 @@ export default async function ConfiguracoesPage() {
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="txt-titulo">Configurações</h1>
+        <h1 className="txt-titulo text-branco">Configurações</h1>
         <p className="mt-0.5 txt-pequeno text-cinza-texto">
           Parâmetros globais do sistema.
         </p>
@@ -25,7 +25,7 @@ export default async function ConfiguracoesPage() {
         </CardHeader>
         <CardContent>
           <TaxaGlobalForm taxaAtual={taxaAtual} />
-          <p className="mt-4 text-xs text-muted-foreground">
+          <p className="mt-4 text-xs text-cinza-texto">
             Para definir uma taxa diferente para um cliente específico, acesse{" "}
             <span className="font-medium">Clientes e planos → detalhe do
             plano</span>.

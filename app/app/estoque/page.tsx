@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
+import type { Route } from "next";
 
-import { Dinheiro } from "@/components/dinheiro";
+import { CardVeiculo } from "@/components/card-veiculo";
 import {
   getCapasVeiculos,
   getEstoquePublico,
@@ -34,116 +34,60 @@ export default async function EstoqueCompletoPage({
     ? estoque.filter((v) => v.marca === filtroMarca)
     : estoque;
 
+  const pill = (ativo: boolean) =>
+    "rounded-sm border px-3 py-1.5 font-mostrador text-[0.6875rem] font-semibold uppercase tracking-[0.08em] transition-colors duration-150 [transition-timing-function:var(--ease-out-ui)] " +
+    (ativo
+      ? "border-vermelho/50 bg-vermelho/10 text-branco"
+      : "border-white/12 text-cinza-texto hover:border-white/25 hover:text-branco");
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="txt-titulo">Estoque completo</h1>
-        <p className="mt-0.5 txt-pequeno text-cinza-texto">
-          {estoque.length} veículos disponíveis
-        </p>
-      </div>
+      <h1 className="border-b border-white/10 pb-3 txt-titulo text-branco">
+        {filtroMarca ? `${filtroMarca} · ` : ""}
+        {veiculosFiltrados.length}{" "}
+        {veiculosFiltrados.length === 1 ? "veículo" : "veículos"}
+        {filtroMarca ? "" : " no estoque"}
+      </h1>
 
-      <div className="flex flex-wrap gap-2 border-b border-white/10 pb-5">
-        <Link
-          href="/app/estoque"
-          className={
-            !filtroMarca
-              ? "gradiente-vermelho rounded-sm px-3 py-1 txt-pequeno font-semibold text-branco shadow-vermelho"
-              : "rounded-sm border border-white/15 px-3 py-1 txt-pequeno text-cinza-texto transition-colors duration-150 [transition-timing-function:var(--ease-out-forte)] hover:border-white/30"
-          }
-        >
-          Todas as marcas
+      <div className="flex flex-wrap gap-2">
+        <Link href="/app/estoque" className={pill(!filtroMarca)}>
+          Todas
         </Link>
         {marcas.map((marca) => (
           <Link
             key={marca}
             href={`/app/estoque?marca=${encodeURIComponent(marca)}`}
-            className={
-              filtroMarca === marca
-                ? "gradiente-vermelho rounded-sm px-3 py-1 txt-pequeno font-semibold text-branco shadow-vermelho"
-                : "rounded-sm border border-white/15 px-3 py-1 txt-pequeno text-cinza-texto transition-colors duration-150 [transition-timing-function:var(--ease-out-forte)] hover:border-white/30"
-            }
+            className={pill(filtroMarca === marca)}
           >
             {marca}
           </Link>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 xl:grid-cols-3">
         {veiculosFiltrados.map((v) => {
-          const elegibilidadeVeiculo = elegibilidadePorVeiculo.get(v.id);
-          const preco = BigInt(v.preco_venda_centavos);
-          const eEligivel = elegibilidadeVeiculo?.elegivel ?? false;
-          const capa = capas.get(v.id);
-
+          const e = elegibilidadePorVeiculo.get(v.id);
           return (
-            <Link
+            <CardVeiculo
               key={v.id}
-              href={`/app/veiculos/${v.id}`}
-              className={
-                eEligivel
-                  ? "flex flex-col overflow-hidden rounded-lg border border-vermelho/40 bg-vermelho-fundo shadow-vermelho transition-transform duration-150 [transition-timing-function:var(--ease-out-forte)] hover:scale-[1.015]"
-                  : "flex flex-col overflow-hidden rounded-lg border border-white/10 bg-superficie shadow-card transition-transform duration-150 [transition-timing-function:var(--ease-out-forte)] hover:scale-[1.015]"
+              href={`/app/veiculos/${v.id}` as Route}
+              marca={v.marca}
+              modelo={v.modelo}
+              versao={v.versao}
+              anoModelo={v.ano_modelo}
+              km={v.km}
+              precoVendaCentavos={BigInt(v.preco_venda_centavos)}
+              capaUrl={capas.get(v.id)}
+              elegivel={e?.elegivel}
+              valorFaltanteCentavos={
+                e && !e.elegivel
+                  ? BigInt(e.valor_faltante_centavos)
+                  : undefined
               }
-            >
-              <div className="grid aspect-[4/3] place-items-center border-b border-white/10 bg-elevado">
-                {capa ? (
-                  <Image
-                    src={capa}
-                    alt=""
-                    width={220}
-                    height={165}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span className="txt-micro text-cinza-inativo">
-                    sem foto
-                  </span>
-                )}
-              </div>
-
-              <div className="flex flex-1 flex-col p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="txt-corpo font-semibold leading-tight">
-                    {v.marca} {v.modelo}
-                  </h3>
-                  {eEligivel && (
-                    <span
-                      className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-vermelho"
-                      aria-hidden
-                    />
-                  )}
-                </div>
-                <p className="mt-0.5 txt-pequeno text-cinza-texto">
-                  {v.versao ? `${v.versao} · ` : ""}
-                  {v.ano_modelo} · {v.km.toLocaleString("pt-BR")} km
-                </p>
-
-                <div className="mt-auto flex items-end justify-between pt-4">
-                  <Dinheiro
-                    centavos={preco}
-                    className="fonte-expandida txt-subtitulo font-bold"
-                  />
-                  {elegibilidadeVeiculo &&
-                    (eEligivel ? (
-                      <span className="txt-micro font-semibold text-vermelho">
-                        Elegível
-                      </span>
-                    ) : (
-                      <div className="text-right">
-                        <p className="txt-micro text-cinza-texto">Faltam</p>
-                        <Dinheiro
-                          centavos={BigInt(
-                            elegibilidadeVeiculo.valor_faltante_centavos,
-                          )}
-                          className="txt-pequeno font-semibold text-ambar"
-                          tamanhoCentavos={false}
-                        />
-                      </div>
-                    ))}
-                </div>
-              </div>
-            </Link>
+              entradaCentavos={
+                e?.elegivel ? BigInt(e.saldo_confirmado_centavos) : undefined
+              }
+            />
           );
         })}
       </div>

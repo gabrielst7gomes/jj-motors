@@ -36,127 +36,131 @@ export default async function DetalheVeiculoPage({
     ? BigInt(minhaElegibilidade.saldo_confirmado_centavos)
     : 0n;
   const aFinanciar = preco - entrada > 0n ? preco - entrada : 0n;
+  const elegivel = minhaElegibilidade?.elegivel ?? false;
 
   const capa = fotos.find((f) => f.capa) ?? fotos[0];
 
-  return (
-    <div className="-mx-[18px] md:-mx-12 md:-mt-10">
-      {/* Foto full-bleed — sangra até a borda do container, sem base sob o
-          logotipo (nenhum texto/marca é sobreposto à imagem — design/
-          IDENTIDADE.md seção 7 de ativos: nunca logo direto sobre foto). */}
-      {capa ? (
-        <Image
-          src={capa.url}
-          alt={`${veiculo.marca} ${veiculo.modelo}`}
-          width={960}
-          height={720}
-          className="aspect-[4/3] w-full object-cover md:aspect-[16/9]"
-          priority
-        />
-      ) : (
-        <div className="grid aspect-[4/3] place-items-center bg-elevado md:aspect-[16/9]">
-          <span className="txt-pequeno text-cinza-inativo">Sem foto</span>
-        </div>
-      )}
+  const ficha: [string, string][] = [
+    ["Ano", `${veiculo.ano_fabricacao}/${veiculo.ano_modelo}`],
+    ["Km", `${veiculo.km.toLocaleString("pt-BR")} km`],
+    ["Cor", veiculo.cor ?? "—"],
+    ["Combustível", veiculo.combustivel ?? "—"],
+    ["Câmbio", veiculo.cambio ?? "—"],
+    ["Placa", veiculo.placa_mascarada ?? "—"],
+  ];
 
-      {/* Dados de compra sobre a base, logo abaixo da foto. */}
-      <div className="space-y-6 bg-base px-[18px] pb-8 pt-6 md:px-12">
+  return (
+    <div className="-mx-4 -mt-5 md:-mx-12 md:-mt-10">
+      {/* Foto full-bleed */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-recuo md:aspect-[21/9]">
+        {capa ? (
+          <Image
+            src={capa.url}
+            alt={`${veiculo.marca} ${veiculo.modelo}`}
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority
+          />
+        ) : (
+          <div className="grid h-full place-items-center">
+            <span className="rotulo-campo text-cinza-inativo">Sem foto</span>
+          </div>
+        )}
+        <div
+          className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-base to-transparent"
+          aria-hidden
+        />
+        {elegivel && (
+          <div className="absolute right-4 top-4 flex items-center gap-1.5 rounded-xs border border-vermelho/50 bg-base/70 px-2.5 py-1.5 backdrop-blur-sm">
+            <span
+              className="h-1.5 w-1.5 rounded-full bg-vermelho shadow-[0_0_6px_0_hsl(var(--vermelho)/0.9)]"
+              aria-hidden
+            />
+            <span className="font-mostrador text-[0.625rem] font-semibold uppercase tracking-[0.1em] text-branco">
+              Liberado para você
+            </span>
+          </div>
+        )}
+      </div>
+
+      <div className="mx-auto max-w-2xl space-y-6 px-4 pb-10 pt-6 md:px-12">
         <div>
           <div className="flex items-start justify-between gap-3">
-            <h1 className="txt-titulo">
+            <h1 className="txt-titulo text-branco">
               {veiculo.marca} {veiculo.modelo}
             </h1>
-            {minhaElegibilidade?.elegivel ? (
-              <span className="mt-1.5 flex shrink-0 items-center gap-1.5 txt-pequeno font-semibold text-vermelho">
-                <span
-                  className="h-2 w-2 rounded-full bg-vermelho"
-                  aria-hidden
-                />
-                Elegível
-              </span>
-            ) : veiculo.status === "vendido" ? (
-              <span className="mt-1.5 shrink-0 txt-pequeno font-medium text-cinza-inativo">
+            {veiculo.status === "vendido" && (
+              <span className="mt-1.5 shrink-0 rotulo-campo text-cinza-inativo">
                 Vendido
               </span>
-            ) : null}
+            )}
           </div>
           {veiculo.versao && (
-            <p className="mt-0.5 txt-pequeno text-cinza-texto">
-              {veiculo.versao}
-            </p>
+            <p className="mt-1 txt-pequeno text-cinza-texto">{veiculo.versao}</p>
           )}
           <Dinheiro
             centavos={preco}
-            className="fonte-expandida mt-2 block txt-titulo font-extrabold"
+            className="leitura leitura-lg mt-3 block text-branco"
           />
         </div>
 
-        {minhaElegibilidade?.elegivel && (
-          <div className="grid grid-cols-2 gap-4 rounded-lg border border-white/10 bg-superficie p-4 shadow-card">
-            <div>
-              <p className="txt-pequeno text-cinza-texto">
-                Entrada (seu saldo)
-              </p>
+        {elegivel && (
+          <div className="mostrador grid grid-cols-2 divide-x divide-white/10 p-0">
+            <div className="p-4">
+              <p className="rotulo-campo">Entrada · seu saldo</p>
               <Dinheiro
                 centavos={entrada}
-                className="mt-0.5 block txt-subtitulo font-bold"
+                className="leitura leitura-md mt-2 block text-branco"
+                tamanhoCentavos={false}
               />
             </div>
-            <div>
-              <p className="txt-pequeno text-cinza-texto">A financiar</p>
+            <div className="p-4">
+              <p className="rotulo-campo">A financiar</p>
               <Dinheiro
                 centavos={aFinanciar}
-                className="mt-0.5 block txt-subtitulo font-bold"
+                className="leitura leitura-md mt-2 block text-ciano"
+                tamanhoCentavos={false}
               />
             </div>
           </div>
         )}
 
         {minhaElegibilidade && !minhaElegibilidade.elegivel && (
-          <p className="rounded-sm border border-ambar/30 bg-ambar/5 p-3 txt-pequeno text-ambar">
-            Faltam{" "}
-            <Dinheiro
-              centavos={BigInt(minhaElegibilidade.valor_faltante_centavos)}
-              className="font-semibold"
-              tamanhoCentavos={false}
-            />{" "}
-            no seu saldo para ficar elegível — mas você já pode abrir uma
-            negociação e acertar as condições com um consultor.
-          </p>
+          <div className="rounded-sm border border-ambar/25 bg-ambar-fundo p-3.5">
+            <p className="txt-pequeno text-ambar">
+              Faltam{" "}
+              <b className="font-semibold">
+                <Dinheiro
+                  centavos={BigInt(minhaElegibilidade.valor_faltante_centavos)}
+                  className="font-mostrador"
+                  tamanhoCentavos={false}
+                />
+              </b>{" "}
+              no seu saldo para ficar elegível — mas você já pode abrir
+              negociação e acertar as condições com um consultor.
+            </p>
+          </div>
         )}
 
         {plano && veiculo.status !== "vendido" && (
-          <SimularParcelas
-            veiculoId={id}
-            elegivel={minhaElegibilidade?.elegivel ?? false}
-          />
+          <SimularParcelas veiculoId={id} elegivel={elegivel} />
         )}
 
-        <details className="group border-t border-white/10 pt-4">
-          <summary className="cursor-pointer txt-pequeno font-semibold text-cinza-texto group-open:text-branco">
-            Ficha técnica
-          </summary>
-          <dl className="mt-3 grid grid-cols-2 gap-y-2.5 txt-pequeno">
-            <dt className="text-cinza-texto">Ano</dt>
-            <dd className="text-right tabular-nums">
-              {veiculo.ano_fabricacao}/{veiculo.ano_modelo}
-            </dd>
-            <dt className="text-cinza-texto">Km</dt>
-            <dd className="text-right tabular-nums">
-              {veiculo.km.toLocaleString("pt-BR")} km
-            </dd>
-            <dt className="text-cinza-texto">Cor</dt>
-            <dd className="text-right">{veiculo.cor ?? "—"}</dd>
-            <dt className="text-cinza-texto">Combustível</dt>
-            <dd className="text-right">{veiculo.combustivel ?? "—"}</dd>
-            <dt className="text-cinza-texto">Câmbio</dt>
-            <dd className="text-right">{veiculo.cambio ?? "—"}</dd>
-            <dt className="text-cinza-texto">Placa</dt>
-            <dd className="text-right font-mono tabular-nums">
-              {veiculo.placa_mascarada ?? "—"}
-            </dd>
+        <div className="mostrador p-5">
+          <p className="rotulo-instrumento">Ficha técnica</p>
+          <dl className="mt-3 grid grid-cols-1 divide-y divide-white/10 sm:grid-cols-2 sm:divide-y-0">
+            {ficha.map(([k, v]) => (
+              <div
+                key={k}
+                className="flex items-center justify-between gap-3 py-2.5 sm:px-1"
+              >
+                <dt className="rotulo-campo">{k}</dt>
+                <dd className="txt-pequeno text-branco">{v}</dd>
+              </div>
+            ))}
           </dl>
-        </details>
+        </div>
       </div>
     </div>
   );

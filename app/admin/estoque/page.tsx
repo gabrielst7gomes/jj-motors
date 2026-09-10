@@ -30,7 +30,7 @@ export default async function EstoqueAdminPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div>
-          <h1 className="txt-titulo">Estoque</h1>
+          <h1 className="txt-titulo text-branco">Estoque</h1>
           <p className="mt-0.5 txt-pequeno text-cinza-texto">
             {veiculos.length} veículos cadastrados.
           </p>
@@ -40,7 +40,7 @@ export default async function EstoqueAdminPage() {
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-white/10 bg-superficie shadow-card">
+      <div className="mostrador overflow-hidden">
         <Table className="tabela-densa">
           <TableHeader>
             <TableRow>
@@ -90,7 +90,7 @@ export default async function EstoqueAdminPage() {
                   <TableCell className="text-right">
                     <Link
                       href={`/admin/estoque/${v.id}`}
-                      className="border-b border-azul-claro/40 txt-pequeno font-semibold text-azul-claro hover:border-azul-claro"
+                      className="border-b border-ciano/40 txt-pequeno font-semibold text-ciano hover:border-ciano"
                     >
                       Editar
                     </Link>

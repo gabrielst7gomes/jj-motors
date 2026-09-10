@@ -33,7 +33,7 @@ export function LancarAporteForm({ planos }: { planos: PlanoComCliente[] }) {
   return (
     <form
       action={formAction}
-      className="grid grid-cols-1 gap-4 border border-white/10 p-5 sm:grid-cols-2 lg:grid-cols-3"
+      className="mostrador grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3"
     >
       <div className="space-y-2">
         <Label htmlFor="planoId">Cliente / plano</Label>
@@ -94,7 +94,7 @@ export function LancarAporteForm({ planos }: { planos: PlanoComCliente[] }) {
         </p>
       )}
       {estado.sucesso && (
-        <p className="txt-pequeno text-azul-claro sm:col-span-3">
+        <p className="txt-pequeno text-ciano sm:col-span-3">
           Aporte lançado como pendente.
         </p>
       )}

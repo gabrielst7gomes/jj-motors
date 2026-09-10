@@ -1,20 +1,30 @@
 import type { Metadata } from "next";
-import { Archivo } from "next/font/google";
+import { Archivo, Chakra_Petch } from "next/font/google";
 import "./globals.css";
 
 /**
- * Archivo é uma fonte de eixo variável (peso 100–900, largura 62–125%).
- * Carregamos uma família só e usamos `font-stretch` em CSS para acessar a
- * largura expandida — é a mesma técnica do mockup de referência
- * (`font-stretch: 118%` sobre a família normal), evitando duas famílias
- * separadas com métricas potencialmente diferentes. Ver design/IDENTIDADE.md
- * seção 4.1: "Archivo em duas larguras", não "Archivo + Archivo Expanded".
+ * Duas famílias, dois papéis (design/IDENTIDADE.md — redesign "instrumentação
+ * de bordo"):
+ *
+ *   Chakra Petch  → display, números grandes, rótulos técnicos. Geométrica de
+ *                   corte técnico, largura levemente condensada, numerais
+ *                   tabulares proeminentes. É a "face de mostrador".
+ *   Archivo       → corpo de texto. Workhorse legível, eixo variável.
+ *
+ * Chakra Petch não tem eixo variável de peso — carregamos os pesos usados.
  */
 const archivo = Archivo({
   subsets: ["latin"],
   variable: "--font-archivo",
   display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const chakra = Chakra_Petch({
+  subsets: ["latin"],
+  variable: "--font-mostrador",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -30,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className={`${archivo.variable} font-sans antialiased`}>
+      <body className={`${archivo.variable} ${chakra.variable} font-sans antialiased`}>
         {children}
       </body>
     </html>

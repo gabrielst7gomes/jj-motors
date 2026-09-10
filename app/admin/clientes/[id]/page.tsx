@@ -50,7 +50,7 @@ export default async function DetalhePlanoPage({
     <div className="space-y-9">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="txt-titulo">
+          <h1 className="txt-titulo text-branco">
             {plano.profiles?.nome_completo ?? "—"}
           </h1>
           <p className="mt-0.5 txt-pequeno text-cinza-texto">
@@ -60,24 +60,24 @@ export default async function DetalhePlanoPage({
         <StatusPlanoBadge status={plano.status} />
       </div>
 
-      <div className="grid grid-cols-1 divide-y divide-white/10 overflow-hidden rounded-lg border border-white/10 bg-superficie shadow-card sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+      <div className="grid grid-cols-1 divide-y divide-white/10 mostrador overflow-hidden sm:grid-cols-3 sm:divide-x sm:divide-y-0">
         <div className="p-5">
           <p className="txt-pequeno text-cinza-texto">Saldo confirmado</p>
           <Dinheiro
             centavos={BigInt(saldo?.saldo_confirmado_centavos ?? 0)}
-            className="fonte-expandida mt-2 block txt-subtitulo font-bold"
+            className="mt-2 block txt-subtitulo font-bold"
           />
         </div>
         <div className="p-5">
           <p className="txt-pequeno text-cinza-texto">Saldo pendente</p>
           <Dinheiro
             centavos={BigInt(saldo?.saldo_pendente_centavos ?? 0)}
-            className="fonte-expandida mt-2 block txt-subtitulo font-bold"
+            className="mt-2 block txt-subtitulo font-bold"
           />
         </div>
         <div className="p-5">
           <p className="txt-pequeno text-cinza-texto">Veículos elegíveis</p>
-          <p className="fonte-expandida mt-2 txt-subtitulo font-bold tabular-nums">
+          <p className="mt-2 txt-subtitulo font-bold tabular-nums">
             {elegiveis.length}
           </p>
         </div>
@@ -113,7 +113,7 @@ export default async function DetalhePlanoPage({
 
       <div>
         <h2 className="txt-subtitulo">Elegibilidade por veículo</h2>
-        <div className="mt-3 border border-white/10">
+        <div className="mostrador mt-3 overflow-hidden">
           <Table className="tabela-densa">
             <TableHeader>
               <TableRow>
@@ -164,7 +164,7 @@ export default async function DetalhePlanoPage({
 
       <div>
         <h2 className="txt-subtitulo">Extrato</h2>
-        <div className="mt-3 border border-white/10">
+        <div className="mostrador mt-3 overflow-hidden">
           <Table className="tabela-densa">
             <TableHeader>
               <TableRow>

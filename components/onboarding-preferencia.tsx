@@ -69,14 +69,15 @@ export function OnboardingPreferencia({
       //  - clique fora / no ::backdrop: sem handler de close aqui, o backdrop
       //    não fecha sozinho; nada a fazer.
       onCancel={(e) => e.preventDefault()}
-      className="m-auto max-h-[92dvh] w-[min(560px,calc(100vw-1.5rem))] overflow-y-auto rounded-2xl border border-white/10 bg-superficie p-0 text-branco shadow-elevado backdrop:bg-base/80 backdrop:backdrop-blur-sm"
+      className="mostrador m-auto max-h-[92dvh] w-[min(560px,calc(100vw-1.5rem))] overflow-y-auto p-0 text-branco backdrop:bg-base/80 backdrop:backdrop-blur-sm"
       aria-labelledby="onboarding-preferencia-titulo"
     >
       <form action={formAction} className="p-6 sm:p-7">
-        <p className="txt-micro font-semibold uppercase tracking-wide text-azul-claro">
-          Antes de começar
-        </p>
-        <h2 id="onboarding-preferencia-titulo" className="mt-1.5 txt-subtitulo">
+        <p className="rotulo-instrumento">Antes de começar</p>
+        <h2
+          id="onboarding-preferencia-titulo"
+          className="mt-2 txt-titulo text-branco"
+        >
           Qual carro é a sua meta?
         </h2>
         <p className="mt-2 max-w-[46ch] txt-pequeno text-cinza-texto">

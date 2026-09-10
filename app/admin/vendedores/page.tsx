@@ -19,7 +19,7 @@ export default async function VendedoresPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div>
-          <h1 className="txt-titulo">Vendedores</h1>
+          <h1 className="txt-titulo text-branco">Vendedores</h1>
           <p className="mt-0.5 txt-pequeno text-cinza-texto">
             {vendedores.length} vendedor(es) cadastrado(s).
           </p>
@@ -29,7 +29,7 @@ export default async function VendedoresPage() {
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-white/10 bg-superficie shadow-card">
+      <div className="mostrador overflow-hidden">
         <Table className="tabela-densa">
           <TableHeader>
             <TableRow>

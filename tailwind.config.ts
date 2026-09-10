@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 const config: Config = {
   darkMode: ["class"],
@@ -12,15 +13,16 @@ const config: Config = {
       center: true,
       padding: "1rem",
       screens: {
-        "2xl": "1240px", // design/IDENTIDADE.md 5.1: conteúdo até 1240px
+        "2xl": "1240px",
       },
     },
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)"],
+        mostrador: ["var(--font-mostrador-stack)"],
       },
       colors: {
-        border: "hsl(var(--border))",
+        border: "hsl(var(--border) / <alpha-value>)",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
@@ -53,65 +55,68 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Tokens de marca — design/IDENTIDADE.md seção V2.1. Usar estes
-        // nomes diretamente (bg-vermelho, text-azul-claro, bg-superficie).
+        // Tokens do mundo "instrumentação de bordo" — usar direto:
+        //   bg-superficie, text-ciano, border-vermelho/50, bg-recuo
         base: "hsl(var(--base))",
         superficie: "hsl(var(--superficie))",
         elevado: "hsl(var(--elevado))",
+        recuo: "hsl(var(--recuo))",
         vermelho: "hsl(var(--vermelho))",
         "vermelho-fundo": "hsl(var(--vermelho-fundo))",
+        "vermelho-texto": "hsl(var(--vermelho-texto))",
+        ciano: "hsl(var(--ciano))",
+        "ciano-fundo": "hsl(var(--ciano-fundo))",
         "azul-profundo": "hsl(var(--azul-profundo))",
-        "azul-claro": "hsl(var(--azul-claro))",
         branco: "hsl(var(--branco))",
         "cinza-texto": "hsl(var(--cinza-texto))",
         "cinza-inativo": "hsl(var(--cinza-inativo))",
         ambar: "hsl(var(--ambar))",
-        vinho: "hsl(var(--vinho))",
+        "ambar-fundo": "hsl(var(--ambar-fundo))",
         "vinho-contorno": "hsl(var(--vinho-contorno))",
       },
       borderRadius: {
-        // design/IDENTIDADE.md V2.2: raio reintroduzido em escala.
         DEFAULT: "var(--radius)",
         lg: "var(--radius)",
         md: "var(--radius)",
         sm: "var(--radius-sm)",
+        xs: "var(--radius-xs)",
         pill: "var(--radius-pill)",
       },
       boxShadow: {
-        card: "var(--sombra-card)",
+        mostrador: "var(--sombra-mostrador)",
         elevado: "var(--sombra-elevado)",
-        vermelho: "var(--sombra-vermelho)",
+        "glow-vermelho": "var(--glow-vermelho)",
+        "glow-ciano": "var(--glow-ciano)",
       },
       keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+        "agulha-sobe": {
+          from: { transform: "scaleX(0)" },
         },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-        // Preenchimento da barra de progresso — design/IDENTIDADE.md 6.2.
-        "barra-preenche": {
-          from: { width: "0%" },
-        },
-        // Pulso único de borda quando um veículo entra no bloco de veredito.
-        "pulso-borda": {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.4" },
+        "pulso-permissao": {
+          "0%": {
+            boxShadow:
+              "var(--sombra-mostrador), 0 0 0 1px hsl(var(--vermelho) / 0.5), 0 0 0 0 hsl(var(--vermelho) / 0)",
+          },
+          "40%": {
+            boxShadow:
+              "var(--sombra-mostrador), 0 0 0 1px hsl(var(--vermelho) / 0.7), 0 4px 30px 2px hsl(var(--vermelho) / 0.5)",
+          },
+          "100%": {
+            boxShadow: "var(--sombra-mostrador), var(--glow-vermelho)",
+          },
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-        "pulso-borda": "pulso-borda 500ms ease-in-out",
+        "agulha-sobe": "agulha-sobe 900ms var(--ease-agulha) both",
+        "pulso-permissao": "pulso-permissao 1100ms var(--ease-out-forte) both",
       },
       transitionTimingFunction: {
-        barra: "cubic-bezier(.22,.7,.3,1)",
+        agulha: "var(--ease-agulha)",
+        "out-ui": "var(--ease-out-ui)",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 };
 
 export default config;

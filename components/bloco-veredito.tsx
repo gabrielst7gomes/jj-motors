@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 
+import { Dinheiro } from "@/components/dinheiro";
 import { formatBRL } from "@/lib/money";
 import { Button } from "@/components/ui/button";
 
@@ -15,34 +17,32 @@ export type VeiculoElegivel = {
 };
 
 /**
- * Bloco de veredito — design/IDENTIDADE.md seção 6.1. Aparece SOMENTE quando
- * há ≥1 veículo elegível. Fundo gradiente vermelho-fundo→base, cantos
- * arredondados e sombra colorida — o bloco mais expressivo da tela (V2).
- * Cards de veículo por dentro ficam em `superficie` para se distinguir do
- * card-mãe.
+ * MOSTRADOR DE VEREDITO — a luz de permissão acesa. Aparece SOMENTE quando há
+ * ≥1 veículo elegível. É o instrumento dominante da tela nesse estado:
+ * `.mostrador-permissao` (moldura vermelha + glow), leitura grande do número
+ * de carros, e cada carro elegível como uma linha compacta (entrada · a
+ * financiar) com seta. O glow pulsa uma vez ao aparecer.
  */
 export function BlocoVeredito({ veiculos }: { veiculos: VeiculoElegivel[] }) {
   if (veiculos.length === 0) return null;
 
   return (
-    <section
-      className="rounded-lg border border-vermelho/40 p-6 shadow-vermelho md:p-[30px]"
-      style={{
-        backgroundImage:
-          "linear-gradient(160deg, hsl(var(--vermelho-fundo)), hsl(var(--base)) 70%)",
-      }}
-    >
-      <h2 className="max-w-[16ch] txt-titulo font-semibold leading-[1.15]">
-        Você já pode comprar {veiculos.length}{" "}
-        {veiculos.length === 1 ? "carro" : "carros"}
-      </h2>
-      <p className="mt-2.5 max-w-[56ch] txt-corpo text-[#E8B6B2]">
-        Seu saldo cobre a entrada de 50% deste{veiculos.length > 1 ? "s" : ""}{" "}
-        veículo{veiculos.length > 1 ? "s" : ""}. O restante fica em
-        promissória direto com a JJ Motors, sem banco.
+    <section className="mostrador mostrador-permissao animate-[pulso-permissao_1100ms_var(--ease-out-forte)_both] p-5 md:p-7">
+      <p className="rotulo-instrumento text-vermelho-texto">Você já pode levar</p>
+      <div className="mt-2 flex items-baseline gap-3">
+        <span className="agulha-vermelho leitura leitura-xl inline-block pb-1.5 text-branco">
+          {veiculos.length}
+        </span>
+        <span className="font-mostrador text-lg font-semibold uppercase tracking-[0.08em] text-vermelho-texto">
+          {veiculos.length === 1 ? "carro" : "carros"}
+        </span>
+      </div>
+      <p className="mt-2 max-w-[54ch] txt-pequeno text-vermelho-texto">
+        Seu saldo cobre a entrada de 50%. O restante fica em promissória direto
+        com a JJ Motors — sem banco.
       </p>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="mt-6 divide-y divide-white/10 border-y border-white/10">
         {veiculos.map((v) => {
           const aFinanciar =
             v.preco_venda_centavos - v.saldo_confirmado_centavos > 0n
@@ -52,51 +52,44 @@ export function BlocoVeredito({ veiculos }: { veiculos: VeiculoElegivel[] }) {
             <Link
               key={v.veiculo_id}
               href={`/app/veiculos/${v.veiculo_id}`}
-              className="grid grid-cols-[132px_1fr] overflow-hidden rounded-lg border border-white/10 bg-superficie shadow-card transition-transform duration-150 [transition-timing-function:var(--ease-out-forte)] hover:scale-[1.01]"
+              className="group flex items-center gap-4 py-3.5 transition-colors duration-150 [transition-timing-function:var(--ease-out-ui)] hover:bg-white/[0.03]"
             >
-              <div className="grid place-items-center border-r border-white/10 bg-elevado p-3">
+              <div className="grid h-14 w-20 shrink-0 place-items-center overflow-hidden rounded-sm border border-white/10 bg-recuo">
                 {v.capaUrl ? (
                   <Image
                     src={v.capaUrl}
                     alt=""
-                    width={108}
-                    height={80}
-                    className="h-auto w-full object-contain opacity-90"
+                    width={80}
+                    height={56}
+                    className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="txt-micro text-cinza-inativo">
-                    sem foto
+                  <span className="text-[0.5625rem] uppercase tracking-wide text-cinza-inativo">
+                    s/ foto
                   </span>
                 )}
               </div>
-              <div className="p-[15px_17px_16px]">
-                <h3 className="txt-corpo font-semibold leading-tight">
+              <div className="min-w-0 flex-1">
+                <p className="txt-corpo font-semibold text-branco">
                   {v.marca} {v.modelo}
-                </h3>
-                {v.versao && (
-                  <p className="mt-0.5 txt-pequeno text-cinza-texto">
-                    {v.versao}
-                  </p>
-                )}
-                <div className="mt-2.5 flex justify-between txt-pequeno">
-                  <span className="text-cinza-texto">Sua entrada</span>
-                  <span className="font-semibold tabular-nums">
-                    {formatBRL(v.saldo_confirmado_centavos)}
-                  </span>
-                </div>
-                <div className="mt-1.5 flex justify-between txt-pequeno">
-                  <span className="text-cinza-texto">A financiar</span>
-                  <span className="font-semibold tabular-nums">
-                    {formatBRL(aFinanciar)}
-                  </span>
-                </div>
-                <div className="mt-2.5 flex items-end justify-between border-t border-white/10 pt-2.5">
-                  <span className="txt-micro text-cinza-texto">Preço</span>
-                  <span className="fonte-expandida txt-subtitulo font-bold">
-                    {formatBRL(v.preco_venda_centavos)}
-                  </span>
-                </div>
+                </p>
+                <p className="mt-0.5 txt-micro text-vermelho-texto">
+                  Entrada {formatBRL(v.saldo_confirmado_centavos)} · a financiar{" "}
+                  {formatBRL(aFinanciar)}
+                </p>
               </div>
+              <div className="shrink-0 text-right">
+                <Dinheiro
+                  centavos={v.preco_venda_centavos}
+                  className="font-mostrador text-[0.9375rem] font-semibold text-branco"
+                  tamanhoCentavos={false}
+                />
+              </div>
+              <ArrowRight
+                className="h-4 w-4 shrink-0 text-vermelho-texto transition-transform duration-150 group-hover:translate-x-0.5"
+                strokeWidth={1.75}
+                aria-hidden
+              />
             </Link>
           );
         })}
@@ -106,7 +99,7 @@ export function BlocoVeredito({ veiculos }: { veiculos: VeiculoElegivel[] }) {
         <Link href="/app/elegiveis">
           {veiculos.length === 1
             ? "Negociar este carro"
-            : "Negociar um destes carros"}
+            : "Ver e negociar"}
         </Link>
       </Button>
     </section>

@@ -3,93 +3,95 @@
 @tailwind utilities;
 
 /* =============================================================================
- * Tokens de identidade — JJ Motors: Compra Programada
- * Fonte da verdade: design/IDENTIDADE.md (seção V2). Não adicionar cor,
- * tamanho ou raio fora do que está documentado lá — atualize o documento
- * primeiro.
+ * JJ Motors — Compra Programada
+ * Mundo visual: INSTRUMENTAÇÃO DE BORDO (Porsche Taycan / Polestar HMI).
+ * Fonte da verdade: DESIGN.md (escrito no fim do build) + .impeccable/surfaces/.
+ *
+ * Princípios:
+ *  - Um instrumento dominante por tela. Tudo mais é telemetria subordinada.
+ *  - Vermelho = agulha/luz de PERMISSÃO (veredito de elegibilidade). Nunca erro.
+ *  - Ciano = traço de progresso + dado financeiro secundário. Âmbar = aviso.
+ *  - Superfícies são MOSTRADORES: moldura de 1px, canto 4px (técnico), leve
+ *    gradiente de vidro curvo. Não são "cards" fofos.
+ *  - Nada decora. Tudo indica.
  * ========================================================================== */
 
 @layer base {
   :root {
-    /* Paleta v2 — base em camadas, não preto chapado (ver IDENTIDADE.md V2.1) */
-    --base: 213 41% 6%; /* #0A0E14 — canvas */
-    --superficie: 216 27% 11%; /* #131822 — cards, sidebar, seções */
-    --elevado: 220 24% 16%; /* #1C2230 — inputs, popovers, hover */
+    /* ---- Fundo: quase-preto azul-frio, lido no escuro ---- */
+    --base: 220 33% 4%;          /* #07090D — canvas */
+    --superficie: 218 26% 8%;    /* #0F131B — mostradores, sidebar */
+    --elevado: 217 22% 13%;      /* #1A1F29 — inputs, popovers, hover de linha */
+    --recuo: 222 40% 3%;         /* #05070A — poços (trilha de barra, campos fundos) */
 
-    --vermelho: 2 100% 44%; /* #E10600 */
-    --vermelho-fundo: 0 45% 12%; /* #2A0F0F */
-    --azul-profundo: 217 79% 40%; /* #1550B8 */
-    --azul-claro: 217 100% 68%; /* #5B9AFF */
-    --branco: 0 0% 100%;
-    --cinza-texto: 216 15% 65%; /* #9AA3B2 */
-    --cinza-inativo: 220 12% 42%; /* #5C6577 */
-    --ambar: 40 91% 48%; /* #F2A900 */
-    --vinho: 350 68% 29%; /* #7A1420 — preenchimento de área grande */
-    --vinho-contorno: 344 60% 51%; /* #C23350 — traço de contorno destrutivo */
+    /* ---- Agulha / permissão ---- */
+    --vermelho: 5 100% 55%;      /* #FF2A1A — quente, vivo. Preenchimento e glow, nunca texto corrido. */
+    --vermelho-fundo: 6 55% 10%; /* #2A100C — leito do painel de veredito */
+    --vermelho-texto: 7 55% 80%; /* #E9B3AE — texto secundário SOBRE o leito do veredito (9,8:1) */
 
-    /* Hairlines — divisor interno (tabela, lista), não mais o único recurso
-     * de hierarquia — ver V2.2. */
-    --linha: 0 0% 100%;
-    --linha-alpha: 0.10;
-    --linha-forte-alpha: 0.18;
+    /* ---- HUD / progresso / dado financeiro ---- */
+    --ciano: 194 100% 65%;       /* #4DD8FF — traço de progresso, valores secundários */
+    --ciano-fundo: 197 60% 9%;   /* #0A1C24 */
+    --azul-profundo: 205 90% 34%;/* #0A5CA3 — parada escura de gradiente ciano */
 
-    /* Mapeamento para os tokens semânticos consumidos por shadcn/ui e pelos
-     * componentes em components/ui/. Mantido em HSL "H S% L%" (sem hsl())
-     * para compor com hsl(var(--x) / <alpha>) quando precisar de opacidade. */
+    /* ---- Texto ---- */
+    --branco: 210 20% 98%;       /* #F8FAFC — quase-branco frio */
+    --cinza-texto: 214 14% 66%;  /* #9AA4B2 — secundário */
+    --cinza-inativo: 216 12% 42%;/* #5C6577 — terciário / desabilitado */
+
+    /* ---- Aviso / destrutivo ---- */
+    --ambar: 38 100% 56%;        /* #FFB020 */
+    --ambar-fundo: 34 55% 10%;   /* #2A1B08 */
+    --vinho-contorno: 348 75% 55%; /* #E23D5B — traço de contorno destrutivo */
+
+    /* ---- Hairlines: divisor e moldura de mostrador ---- */
+    --linha: 210 30% 100%;
+    --linha-alpha: 0.08;         /* moldura de mostrador, divisor de tabela */
+    --linha-forte-alpha: 0.16;   /* moldura em foco, régua de seção */
+
+    /* ---- Mapeamento shadcn/ui ---- */
     --background: var(--base);
     --foreground: var(--branco);
-
     --card: var(--superficie);
     --card-foreground: var(--branco);
-
     --popover: var(--elevado);
     --popover-foreground: var(--branco);
-
     --primary: var(--vermelho);
     --primary-foreground: var(--branco);
-
     --secondary: var(--azul-profundo);
     --secondary-foreground: var(--branco);
-
     --muted: var(--elevado);
     --muted-foreground: var(--cinza-texto);
-
-    --accent: var(--azul-profundo);
-    --accent-foreground: var(--branco);
-
+    --accent: var(--ciano);
+    --accent-foreground: var(--base);
     --destructive: var(--vinho-contorno);
     --destructive-foreground: var(--branco);
-
-    --border: 0 0% 100%; /* usado sempre com alpha, ver .hairline */
+    --border: var(--linha);
     --input: var(--elevado);
-    --ring: var(--azul-claro);
+    --ring: var(--ciano);
 
-    /* Raio — v2 reintroduz border-radius em escala (V2.2). */
-    --radius-sm: 8px; /* controles pequenos: badge, input, botão */
-    --radius: 16px; /* cards e blocos de conteúdo */
+    /* ---- Raio: técnico, não fofo ---- */
+    --radius-xs: 3px;   /* badge, chip */
+    --radius-sm: 4px;   /* input, botão, controle */
+    --radius: 6px;      /* mostrador, painel, bloco */
     --radius-pill: 9999px; /* só contadores */
 
-    /* Fontes — uma família, duas larguras via font-stretch */
+    /* ---- Fontes ---- */
     --font-sans: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
+    --font-mostrador-stack: var(--font-mostrador), var(--font-archivo), sans-serif;
 
-    /* Curvas de easing — as do CSS nativo (ease/ease-out) são fracas demais
-     * para dar a sensação de resposta imediata que uma interação de UI
-     * precisa. Usar sempre estas, nunca ease-in em elemento de interface
-     * (ease-in atrasa o movimento no exato momento em que o usuário está
-     * olhando). Toda animação de UI fica abaixo de 300ms. */
-    --ease-out-forte: cubic-bezier(0.23, 1, 0.32, 1);
-    --ease-in-out-forte: cubic-bezier(0.77, 0, 0.175, 1);
+    /* ---- Easing ---- */
+    --ease-out-forte: cubic-bezier(0.16, 1, 0.3, 1);      /* revelação de instrumento */
+    --ease-out-ui: cubic-bezier(0.23, 1, 0.32, 1);        /* interação de UI (<200ms) */
+    --ease-agulha: cubic-bezier(0.16, 1, 0.3, 1);         /* subida da agulha/barra */
 
-    /* Sombras — elevação real além da cor de camada (V2.2). Offset + blur
-     * reais, nunca halo de opacidade zero-offset. */
-    --sombra-card: 0 1px 2px hsl(0 0% 0% / 0.24), 0 8px 24px -8px hsl(0 0% 0% / 0.4);
-    --sombra-elevado: 0 2px 4px hsl(0 0% 0% / 0.3), 0 12px 32px -8px hsl(0 0% 0% / 0.5);
-    --sombra-vermelho: 0 4px 16px -4px hsl(var(--vermelho) / 0.45);
+    /* ---- Elevação: offset + blur reais, nunca halo zero-offset ---- */
+    --sombra-mostrador: 0 1px 1px hsl(220 40% 2% / 0.6), 0 10px 30px -12px hsl(220 40% 1% / 0.7);
+    --sombra-elevado: 0 2px 4px hsl(220 40% 2% / 0.6), 0 18px 44px -14px hsl(220 40% 1% / 0.8);
+    /* Glow curto da luz de permissão — blur sem spread, é uma LUZ, não uma borda */
+    --glow-vermelho: 0 0 0 1px hsl(var(--vermelho) / 0.5), 0 4px 22px -2px hsl(var(--vermelho) / 0.45);
+    --glow-ciano: 0 0 0 1px hsl(var(--ciano) / 0.35), 0 4px 20px -4px hsl(var(--ciano) / 0.35);
   }
-
-  /* A identidade é escura por definição — não há variante clara do produto.
-   * Não redefinimos nada sob prefers-color-scheme nem [data-theme="light"]:
-   * o app sempre usa a paleta acima, em qualquer preferência do sistema. */
 
   * {
     @apply border-border;
@@ -103,26 +105,29 @@
     @apply bg-background text-foreground;
     font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;
-    /* Gradiente ambiente sutil — V2.2: gradiente autorizado como recurso
-     * ativo, não só na barra de progresso. Fixo (não rola com o conteúdo),
-     * bem discreto, só para a base não ler como um chapado uniforme. */
+    text-rendering: optimizeLegibility;
+    /* Névoa de instrumento: um brilho frio vindo de cima, como a luz de fundo
+     * de um painel. Fixo, discretíssimo — só para a base não ler chapada. */
     background-image:
-      radial-gradient(ellipse 1200px 600px at 15% -10%, hsl(var(--azul-profundo) / 0.12), transparent 60%),
-      radial-gradient(ellipse 900px 500px at 100% 0%, hsl(var(--vermelho) / 0.06), transparent 55%);
+      radial-gradient(ellipse 1400px 700px at 50% -20%, hsl(var(--ciano) / 0.06), transparent 60%),
+      radial-gradient(ellipse 900px 600px at 100% 0%, hsl(var(--vermelho) / 0.04), transparent 55%);
     background-attachment: fixed;
   }
 
   :focus-visible {
-    outline: 2px solid hsl(var(--azul-claro));
-    outline-offset: 3px;
-    border-radius: 4px;
+    outline: 2px solid hsl(var(--ciano));
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
   }
 
-  /* Superfícies de navegador que nenhum componente desenha, mas que ainda
-   * carregam a identidade — seleção de texto e scrollbar. */
+  /* Superfícies de navegador — seleção, caret, scrollbar */
   ::selection {
-    background: hsl(var(--vermelho) / 0.35);
+    background: hsl(var(--vermelho) / 0.3);
     color: hsl(var(--branco));
+  }
+  :root {
+    caret-color: hsl(var(--ciano));
+    accent-color: hsl(var(--ciano));
   }
 
   ::-webkit-scrollbar {
@@ -130,25 +135,63 @@
     height: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: hsl(var(--base));
+    background: hsl(var(--recuo));
   }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--linha) / var(--linha-forte-alpha));
-    border: 2px solid hsl(var(--base));
+    background: hsl(var(--linha) / 0.14);
+    border: 2px solid hsl(var(--recuo));
     border-radius: var(--radius-sm);
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--linha) / 0.3);
+    background: hsl(var(--linha) / 0.26);
   }
-
   * {
-    scrollbar-color: hsl(var(--linha) / var(--linha-forte-alpha)) hsl(var(--base));
+    scrollbar-color: hsl(var(--linha) / 0.14) hsl(var(--recuo));
     scrollbar-width: thin;
   }
 }
 
+@layer components {
+  /* ---------------------------------------------------------------------------
+   * MOSTRADOR — a superfície-base do sistema. Não é um card: é um painel de
+   * instrumento, com moldura de 1px, canto técnico e um leve gradiente de
+   * vidro curvo (brilho vindo do topo-centro).
+   * ------------------------------------------------------------------------- */
+  .mostrador {
+    position: relative;
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--linha) / var(--linha-alpha));
+    background-color: hsl(var(--superficie));
+    background-image: radial-gradient(
+      ellipse 120% 80% at 50% -10%,
+      hsl(var(--linha) / 0.035),
+      transparent 70%
+    );
+    box-shadow: var(--sombra-mostrador);
+  }
+
+  /* Mostrador com a luz de permissão acesa (veredito: liberado). */
+  .mostrador-permissao {
+    border-color: hsl(var(--vermelho) / 0.5);
+    background-color: hsl(var(--vermelho-fundo));
+    background-image: radial-gradient(
+      ellipse 130% 90% at 50% -10%,
+      hsl(var(--vermelho) / 0.12),
+      transparent 70%
+    );
+    box-shadow: var(--sombra-mostrador), var(--glow-vermelho);
+  }
+
+  /* Poço — a trilha de uma barra, o fundo de um campo. Afunda, não eleva. */
+  .poco {
+    background-color: hsl(var(--recuo));
+    border: 1px solid hsl(var(--linha) / 0.06);
+    box-shadow: inset 0 1px 3px hsl(220 40% 1% / 0.6);
+  }
+}
+
 @layer utilities {
-  /* Hairline — divisor interno (tabela, lista). */
+  /* ---- Hairline ---- */
   .hairline {
     border-color: hsl(var(--linha) / var(--linha-alpha));
   }
@@ -156,96 +199,150 @@
     border-color: hsl(var(--linha) / var(--linha-forte-alpha));
   }
 
-  /* Largura expandida via font-stretch sobre a mesma família variável.
-   * Usada em display/titulo e em qualquer número grande. */
-  .fonte-expandida {
-    font-stretch: 115%;
-    letter-spacing: -0.01em;
+  /* ---------------------------------------------------------------------------
+   * TIPOGRAFIA
+   * Face de mostrador (Chakra Petch) para display, números e rótulos técnicos.
+   * Archivo para corpo. Escala fixa — nada fora daqui.
+   * ------------------------------------------------------------------------- */
+
+  /* Rótulo técnico de instrumento: pequeno, tracked, caixa alta. Só para
+   * rótulos de mostrador ("SALDO ACUMULADO", "FALTAM") — nunca como kicker
+   * decorativo acima de um título de página. */
+  .rotulo-instrumento {
+    font-family: var(--font-mostrador-stack);
+    font-size: 11px;
+    line-height: 14px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: hsl(var(--cinza-texto));
   }
 
-  /* Escala tipográfica fixa. Seis tamanhos, nenhum fora daqui. Pesos
-   * ajustados na v2: um degrau mais leves que a v1 para reduzir o efeito
-   * "grito" (feedback do usuário sobre a v1). */
-  .txt-display {
-    font-size: 40px;
-    line-height: 46px;
+  /* Leitura grande de instrumento — o número que a tela existe para mostrar. */
+  .leitura {
+    font-family: var(--font-mostrador-stack);
     font-weight: 600;
-    font-stretch: 120%;
-    letter-spacing: -0.02em;
-  }
-  .txt-titulo {
-    font-size: 24px;
-    line-height: 31px;
-    font-weight: 600;
-    font-stretch: 112%;
     letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+    line-height: 1;
+  }
+  .leitura-xl { font-size: clamp(2.75rem, 11vw, 4rem); }   /* veredito principal */
+  .leitura-lg { font-size: clamp(1.9rem, 7vw, 2.5rem); }    /* saldo, valor faltante */
+  .leitura-md { font-size: 1.375rem; }                      /* dado de mostrador pequeno */
+
+  /* Títulos e corpo — Archivo */
+  .txt-titulo {
+    font-family: var(--font-mostrador-stack);
+    font-size: 1.375rem;
+    line-height: 1.25;
+    font-weight: 600;
+    letter-spacing: -0.005em;
   }
   .txt-subtitulo {
-    font-size: 18px;
-    line-height: 27px;
+    font-size: 1.0625rem;
+    line-height: 1.4;
     font-weight: 600;
   }
   .txt-corpo {
-    font-size: 15px;
-    line-height: 23px;
+    font-size: 0.9375rem;
+    line-height: 1.55;
     font-weight: 400;
   }
   .txt-pequeno {
-    font-size: 13px;
-    line-height: 19px;
+    font-size: 0.8125rem;
+    line-height: 1.45;
     font-weight: 400;
   }
   .txt-micro {
-    font-size: 11px;
-    line-height: 16px;
+    font-size: 0.6875rem;
+    line-height: 1.4;
     font-weight: 500;
+    letter-spacing: 0.01em;
   }
 
-  /* Valor monetário — tabular-nums sempre, centavos menores. */
+  /* Rótulo de coluna de tabela / cabeçalho de campo — tracked, discreto. */
+  .rotulo-campo {
+    font-family: var(--font-mostrador-stack);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: hsl(var(--cinza-texto));
+  }
+
+  /* Valor monetário — tabular sempre; centavos menores e recuados. */
   .valor-monetario {
     font-variant-numeric: tabular-nums;
-    text-align: right;
     white-space: nowrap;
   }
   .valor-monetario .centavos {
-    font-size: 0.55em;
+    font-size: 0.62em;
     color: hsl(var(--cinza-texto));
-    font-weight: 600;
+    font-weight: 500;
   }
 
   table.tabela-densa {
     font-variant-numeric: tabular-nums;
   }
 
-  /* Pill de contagem — border-radius total, reservado a contadores. */
+  /* Contador — pill vermelho, único lugar com raio total. */
   .pill-contagem {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    padding: 0.05rem 0.4rem;
     background: hsl(var(--vermelho));
     color: hsl(var(--branco));
-    font-size: 11px;
+    font-family: var(--font-mostrador-stack);
+    font-size: 0.6875rem;
     font-weight: 700;
-    padding: 1px 8px;
     border-radius: var(--radius-pill);
   }
 
-  /* Gradientes de marca — V2.2: recurso ativo, sempre dentro da mesma
-   * família de cor (nunca multicolor arco-íris), contraste verificado nas
-   * duas paradas. */
-  .gradiente-vermelho {
-    background-image: linear-gradient(135deg, hsl(2 100% 48%), hsl(2 90% 38%));
+  /* Sublinhado de agulha — a linha de 2px sob uma leitura grande. A cor diz o
+   * veredito: vermelha = liberado, ciano = em rota. */
+  .agulha-vermelho {
+    box-shadow: inset 0 -2px 0 0 hsl(var(--vermelho));
   }
-  .gradiente-superficie {
-    background-image: linear-gradient(180deg, hsl(var(--superficie)), hsl(var(--base)));
+  .agulha-ciano {
+    box-shadow: inset 0 -2px 0 0 hsl(var(--ciano));
+  }
+
+  /* Gradiente do traço de progresso — dentro da família ciano, nunca arco-íris. */
+  .traco-progresso {
+    background-image: linear-gradient(
+      90deg,
+      hsl(var(--azul-profundo)),
+      hsl(var(--ciano))
+    );
+  }
+  /* Gradiente do botão primário — dentro da família vermelha. */
+  .gradiente-vermelho {
+    background-image: linear-gradient(
+      135deg,
+      hsl(6 100% 60%),
+      hsl(4 90% 46%)
+    );
   }
 }
 
-/* Drawer de navegação mobile (shell-admin). Entra deslizando da esquerda. */
+/* ---- Movimento ------------------------------------------------------------- */
+
+/* Subida da agulha / barra: do zero ao valor real, uma vez por sessão. */
+@keyframes agulha-sobe {
+  from { transform: scaleX(0); }
+}
+/* Pulso único do glow vermelho quando o veredito "liberado" aparece. */
+@keyframes pulso-permissao {
+  0% { box-shadow: var(--sombra-mostrador), 0 0 0 1px hsl(var(--vermelho) / 0.5), 0 0 0 0 hsl(var(--vermelho) / 0); }
+  40% { box-shadow: var(--sombra-mostrador), 0 0 0 1px hsl(var(--vermelho) / 0.7), 0 4px 30px 2px hsl(var(--vermelho) / 0.5); }
+  100% { box-shadow: var(--sombra-mostrador), var(--glow-vermelho); }
+}
+/* Drawer de navegação mobile do admin. */
 @keyframes deslizar-drawer {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
+  from { transform: translateX(-100%); }
 }
 
 @media (prefers-reduced-motion: reduce) {

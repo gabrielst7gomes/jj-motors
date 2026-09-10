@@ -22,7 +22,7 @@ export default async function LancarAportePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="txt-titulo">Lançar aporte</h1>
+        <h1 className="txt-titulo text-branco">Lançar aporte</h1>
         <p className="mt-0.5 txt-pequeno text-cinza-texto">
           Novo aporte entra como pendente até ser confirmado.
         </p>
@@ -32,7 +32,7 @@ export default async function LancarAportePage() {
 
       <div>
         <h2 className="mb-3 text-lg font-medium">Pendentes de confirmação</h2>
-        <div className="overflow-hidden rounded-lg border border-white/10 bg-superficie shadow-card">
+        <div className="mostrador overflow-hidden">
           <Table className="tabela-densa">
             <TableHeader>
               <TableRow>
@@ -77,7 +77,7 @@ export default async function LancarAportePage() {
                 <TableRow>
                   <TableCell
                     colSpan={7}
-                    className="text-center text-muted-foreground"
+                    className="text-center text-cinza-texto"
                   >
                     Nenhum aporte pendente.
                   </TableCell>

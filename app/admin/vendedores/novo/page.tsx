@@ -9,7 +9,7 @@ export default async function NovoVendedorPage() {
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="txt-titulo">Novo vendedor</h1>
+        <h1 className="txt-titulo text-branco">Novo vendedor</h1>
         <p className="mt-0.5 txt-pequeno text-cinza-texto">
           Cria o acesso do vendedor e o vincula a um cargo.
         </p>

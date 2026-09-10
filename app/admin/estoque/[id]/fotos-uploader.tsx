@@ -57,7 +57,7 @@ export function FotosUploader({
               className="aspect-[4/3] w-full object-cover"
             />
             {foto.capa && (
-              <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
+              <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-ciano-foreground">
                 Capa
               </span>
             )}
@@ -84,7 +84,7 @@ export function FotosUploader({
           </div>
         ))}
         {fotos.length === 0 && (
-          <p className="col-span-full text-sm text-muted-foreground">
+          <p className="col-span-full text-sm text-cinza-texto">
             Nenhuma foto cadastrada.
           </p>
         )}

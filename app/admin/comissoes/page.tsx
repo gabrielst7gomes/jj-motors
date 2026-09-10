@@ -23,7 +23,7 @@ export default async function ComissoesPage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-4 border-b border-white/10 pb-6">
         <div>
-          <h1 className="txt-titulo">Comissões</h1>
+          <h1 className="txt-titulo text-branco">Comissões</h1>
           <p className="mt-0.5 txt-pequeno text-cinza-texto">
             Geradas automaticamente quando uma reserva é convertida em venda.
           </p>
@@ -32,12 +32,12 @@ export default async function ComissoesPage() {
           <p className="txt-pequeno text-cinza-texto">Total pendente</p>
           <Dinheiro
             centavos={totalPendente}
-            className="fonte-expandida mt-1 block txt-subtitulo font-bold text-ambar"
+            className="mt-1 block txt-subtitulo font-bold text-ambar"
           />
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-white/10 bg-superficie shadow-card">
+      <div className="mostrador overflow-hidden">
         <Table className="tabela-densa">
           <TableHeader>
             <TableRow>

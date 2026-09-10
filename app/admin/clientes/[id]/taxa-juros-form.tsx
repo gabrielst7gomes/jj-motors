@@ -56,7 +56,7 @@ export function TaxaJurosPlanoForm({
       </div>
       <BotaoSalvar />
       {estado.erro && <p className="text-sm text-ambar">{estado.erro}</p>}
-      {estado.sucesso && <p className="text-sm text-azul-claro">Salvo.</p>}
+      {estado.sucesso && <p className="text-sm text-ciano">Salvo.</p>}
     </form>
   );
 }

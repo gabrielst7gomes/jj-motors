@@ -3,16 +3,15 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Tabela densa — design/IDENTIDADE.md seção 8.4: zebra por HAIRLINE, não por
- * fundo alternado. Toda linha tem a mesma hairline; não há classe de zebra
- * aqui porque a "zebra" do documento é só a repetição regular da própria
- * borda, não uma cor extra.
+ * Tabela densa — leitura de telemetria. Divisor por hairline, nunca por fundo
+ * alternado. Cabeçalho em Chakra Petch tracked (rótulo de instrumento). Linha
+ * acende de leve no hover. Números tabulares sempre.
  */
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto">
+  <div className="relative w-full overflow-x-auto">
     <table
       ref={ref}
       className={cn("w-full caption-bottom txt-corpo", className)}
@@ -68,7 +67,7 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      "border-b border-white/10 transition-colors hover:bg-white/[0.03] data-[state=selected]:bg-white/[0.05]",
+      "border-b border-white/10 transition-colors duration-100 [transition-timing-function:var(--ease-out-ui)] hover:bg-white/[0.025] data-[state=selected]:bg-white/[0.05]",
       className,
     )}
     {...props}
@@ -83,7 +82,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-10 px-3 text-left align-middle txt-pequeno font-medium text-cinza-texto [&:has([role=checkbox])]:pr-0",
+      "h-11 px-3 text-left align-middle rotulo-campo [&:has([role=checkbox])]:pr-0",
       className,
     )}
     {...props}
@@ -97,7 +96,10 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn("p-3 align-middle [&:has([role=checkbox])]:pr-0", className)}
+    className={cn(
+      "px-3 py-3.5 align-middle [&:has([role=checkbox])]:pr-0",
+      className,
+    )}
     {...props}
   />
 ));

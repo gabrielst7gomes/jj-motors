@@ -4,30 +4,30 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /**
- * Badge de status — design/IDENTIDADE.md seção 7: forma + cor, nunca só cor
- * (pensado para daltônicos). Cada variant renderiza um indicador geométrico
- * fixo antes do texto (círculo cheio, círculo vazado, triângulo, quadrado,
- * X) — a cor sozinha nunca carrega o significado.
+ * Badge de status — forma + cor, nunca só cor (daltônicos). Cada variant
+ * renderiza um indicador geométrico antes do texto. Rótulo em Chakra Petch
+ * tracked, canto técnico (--radius-xs), sem preenchimento chapado — é uma
+ * legenda de instrumento, não um selo.
  *
- * Mapeamento de variant -> significado (não usar fora deste papel):
- *   elegivel    vermelho, círculo cheio       — elegível / liberado
- *   progresso   azul-claro, círculo vazado    — em progresso / a financiar
- *   pendente    âmbar, triângulo              — pendente / aguardando
- *   confirmado  azul-claro, quadrado          — confirmado / concluído
- *   falha       âmbar, X                      — rejeitado / falha (nunca vinho — vinho é só ação destrutiva)
- *   neutro      cinza-texto, sem indicador    — informativo sem veredito (ex.: "inativo")
+ * variant -> significado (não usar fora deste papel):
+ *   elegivel    vermelho, círculo cheio + glow  — elegível / liberado
+ *   progresso   ciano, círculo vazado           — em progresso / a financiar
+ *   pendente    âmbar, triângulo                — pendente / aguardando
+ *   confirmado  ciano, quadrado                 — confirmado / concluído
+ *   falha       âmbar, X                        — rejeitado / falha (nunca vinho)
+ *   neutro      cinza, sem indicador            — informativo sem veredito
  */
 const badgeVariants = cva(
-  "inline-flex items-center gap-1.5 border px-2 py-0.5 txt-micro font-medium",
+  "inline-flex items-center gap-1.5 rounded-xs border px-2 py-[3px] font-mostrador text-[0.625rem] font-semibold uppercase tracking-[0.1em]",
   {
     variants: {
       variant: {
-        elegivel: "border-vermelho/50 bg-vermelho-fundo text-branco",
-        progresso: "border-azul-claro/30 bg-transparent text-azul-claro",
+        elegivel: "border-vermelho/50 bg-vermelho/10 text-branco",
+        progresso: "border-ciano/30 bg-transparent text-ciano",
         pendente: "border-ambar/30 bg-transparent text-ambar",
-        confirmado: "border-azul-claro/30 bg-transparent text-azul-claro",
+        confirmado: "border-ciano/30 bg-transparent text-ciano",
         falha: "border-ambar/30 bg-transparent text-ambar",
-        neutro: "border-white/10 bg-transparent text-cinza-texto",
+        neutro: "border-white/12 bg-transparent text-cinza-texto",
       },
     },
     defaultVariants: {
@@ -41,11 +41,14 @@ const INDICADOR: Record<
   React.ReactNode
 > = {
   elegivel: (
-    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-vermelho" aria-hidden />
+    <span
+      className="h-1.5 w-1.5 shrink-0 rounded-full bg-vermelho shadow-[0_0_6px_0_hsl(var(--vermelho)/0.8)]"
+      aria-hidden
+    />
   ),
   progresso: (
     <span
-      className="h-1.5 w-1.5 shrink-0 rounded-full border border-azul-claro"
+      className="h-1.5 w-1.5 shrink-0 rounded-full border border-ciano"
       aria-hidden
     />
   ),
@@ -55,11 +58,9 @@ const INDICADOR: Record<
       aria-hidden
     />
   ),
-  confirmado: (
-    <span className="h-1.5 w-1.5 shrink-0 bg-azul-claro" aria-hidden />
-  ),
+  confirmado: <span className="h-1.5 w-1.5 shrink-0 bg-ciano" aria-hidden />,
   falha: (
-    <span className="txt-micro leading-none text-ambar" aria-hidden>
+    <span className="text-[0.625rem] leading-none text-ambar" aria-hidden>
       ✕
     </span>
   ),

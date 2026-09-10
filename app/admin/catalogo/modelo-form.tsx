@@ -167,7 +167,7 @@ export function LinhaCatalogo({
 
   if (editando) {
     return (
-      <div className="border-b border-white/10 bg-elevado/40 p-4">
+      <div className="border-b border-white/10 bg-white/[0.02] p-4">
         <ModeloCatalogoForm
           modelo={modelo}
           onConcluido={() => setEditando(false)}
@@ -205,7 +205,7 @@ export function LinhaCatalogo({
         <button
           type="button"
           onClick={() => setEditando(true)}
-          className="txt-pequeno font-semibold text-azul-claro hover:underline"
+          className="txt-pequeno font-semibold text-ciano hover:underline"
         >
           Editar
         </button>

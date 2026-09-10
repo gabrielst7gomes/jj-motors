@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,14 +13,9 @@ import { simularParcelasAction, type ResultadoSimulacao } from "./simular-action
 import { abrirNegociacaoAction } from "./negociar-action";
 
 /**
- * A simulação roda inteiramente no servidor (simularParcelasAction): preço,
- * entrada e a taxa de juros mensal são resolvidos lá. Este componente só
- * envia o número de parcelas e mostra o resultado — nenhum cálculo de
- * dinheiro aqui.
- *
- * `elegivel` controla só a simulação. Abrir negociação está sempre
- * disponível para quem tem plano ativo (decisão do usuário: o cliente pode
- * negociar entrada antecipada mesmo sem os 50%).
+ * Simulação roda no servidor (simularParcelasAction). `elegivel` controla só
+ * a simulação — abrir negociação está sempre disponível para quem tem plano
+ * ativo (o cliente pode negociar entrada antecipada mesmo sem os 50%).
  */
 export function SimularParcelas({
   veiculoId,
@@ -47,9 +43,10 @@ export function SimularParcelas({
   return (
     <div className="space-y-4">
       {elegivel && (
-        <div className="rounded-lg border border-white/10 bg-superficie p-5 shadow-card">
-          <div className="space-y-2">
-            <Label htmlFor="qtd-parcelas">Simular parcelas</Label>
+        <div className="mostrador p-5">
+          <p className="rotulo-instrumento">Simular promissória</p>
+          <div className="mt-3 space-y-2">
+            <Label htmlFor="qtd-parcelas">Número de parcelas</Label>
             <Input
               id="qtd-parcelas"
               type="number"
@@ -57,40 +54,39 @@ export function SimularParcelas({
               max={60}
               value={qtdParcelas}
               onChange={(e) => setQtdParcelas(Number(e.target.value))}
+              className="max-w-[9rem]"
             />
           </div>
 
           {pending && !resultado && (
-            <p className="mt-3 txt-pequeno text-cinza-texto">Simulando...</p>
+            <p className="mt-3 txt-pequeno text-cinza-texto">Calculando…</p>
           )}
-
           {resultado && !resultado.ok && (
             <p className="mt-3 txt-pequeno text-ambar">{resultado.erro}</p>
           )}
 
           {resultado?.ok && (
-            <div className="mt-4 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <p className="txt-micro text-cinza-texto">A financiar</p>
+            <div className="mt-4">
+              <div className="grid grid-cols-2 divide-x divide-white/10 border-y border-white/10">
+                <div className="py-3 pr-3">
+                  <p className="rotulo-campo">A financiar</p>
                   <Dinheiro
                     centavos={resultado.resultado.saldoFinanciadoCentavos}
-                    className="mt-0.5 block txt-corpo font-semibold"
+                    className="leitura leitura-md mt-1.5 block text-branco"
                     tamanhoCentavos={false}
                   />
                 </div>
-                <div>
-                  <p className="txt-micro text-cinza-texto">Valor da parcela</p>
+                <div className="py-3 pl-3">
+                  <p className="rotulo-campo">Parcela</p>
                   <Dinheiro
                     centavos={resultado.resultado.valorParcelaCentavos}
-                    className="mt-0.5 block txt-corpo font-semibold"
+                    className="leitura leitura-md mt-1.5 block text-ciano"
                     tamanhoCentavos={false}
                   />
                 </div>
               </div>
-              <p className="txt-micro text-cinza-inativo">
-                Taxa de juros: {(resultado.taxaJurosMensal * 100).toFixed(2)}%
-                ao mês
+              <p className="mt-2.5 rotulo-campo">
+                Juros {(resultado.taxaJurosMensal * 100).toFixed(2)}% ao mês
               </p>
             </div>
           )}
@@ -129,40 +125,39 @@ function AbrirNegociacao({
 
   if (aberta) {
     return (
-      <div className="rounded-lg border border-vermelho/30 bg-vermelho-fundo p-5 shadow-card">
-        <p className="txt-corpo font-semibold text-branco">
-          Negociação aberta
-        </p>
-        <p className="mt-1 max-w-[46ch] txt-pequeno text-cinza-texto">
+      <div className="mostrador mostrador-permissao p-5">
+        <div className="flex items-center gap-2">
+          <Check className="h-4 w-4 text-vermelho" strokeWidth={2.5} aria-hidden />
+          <p className="font-mostrador text-sm font-semibold uppercase tracking-[0.06em] text-branco">
+            Negociação aberta
+          </p>
+        </div>
+        <p className="mt-2 max-w-[48ch] txt-pequeno text-vermelho-texto">
           Um consultor da JJ Motors vai falar com você pelo WhatsApp para
-          acertar entrada, prazo e condições. Você acompanha em
-          &quot;Negociações&quot;.
+          acertar entrada, prazo e condições. Acompanhe em &quot;Negócios&quot;.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-white/10 bg-superficie p-5 shadow-card">
-      <p className="txt-corpo font-semibold">Interessado neste carro?</p>
-      <p className="mt-1 max-w-[46ch] txt-pequeno text-cinza-texto">
+    <div className="mostrador p-5">
+      <p className="rotulo-instrumento">Interessado?</p>
+      <p className="mt-2 max-w-[48ch] txt-pequeno text-cinza-texto">
         Abra uma negociação. Um consultor entra em contato pelo WhatsApp para
-        acertar entrada, prazo e condições — mesmo que você ainda não tenha os
-        50% do valor.
+        acertar entrada, prazo e condições — mesmo sem os 50% do valor.
       </p>
 
       <div className="mt-4 space-y-2">
-        <Label htmlFor="mensagem-negociacao">
-          Quer adiantar algo? (opcional)
-        </Label>
+        <Label htmlFor="mensagem-negociacao">Quer adiantar algo? (opcional)</Label>
         <textarea
           id="mensagem-negociacao"
           value={mensagem}
           onChange={(e) => setMensagem(e.target.value)}
           rows={3}
           maxLength={500}
-          placeholder="Ex.: tenho interesse, posso dar uma entrada maior à vista."
-          className="flex w-full rounded-sm border border-white/10 bg-elevado px-3 py-2 txt-corpo text-branco outline-none transition-[border-color,box-shadow] duration-150 [transition-timing-function:var(--ease-out-forte)] placeholder:text-cinza-inativo focus-visible:border-azul-claro focus-visible:shadow-[0_0_0_3px_hsl(var(--azul-claro)/0.15)]"
+          placeholder="Ex.: posso dar uma entrada maior à vista."
+          className="poco flex w-full rounded-sm px-3 py-2 txt-corpo text-branco outline-none transition-[border-color,box-shadow] duration-150 [transition-timing-function:var(--ease-out-ui)] placeholder:text-cinza-inativo focus-visible:border-ciano/70 focus-visible:shadow-[0_0_0_3px_hsl(var(--ciano)/0.14)]"
         />
       </div>
 
@@ -172,7 +167,7 @@ function AbrirNegociacao({
         disabled={pending}
         onClick={abrir}
       >
-        {pending ? "Abrindo..." : "Abrir negociação"}
+        {pending ? "Abrindo…" : "Abrir negociação"}
       </Button>
 
       {erro && <p className="mt-2 txt-pequeno text-ambar">{erro}</p>}

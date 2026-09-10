@@ -62,7 +62,7 @@ function LinhaPreferencia({ preferencia }: { preferencia: Preferencia }) {
         <p className="txt-corpo font-semibold">
           {preferencia.marca} {preferencia.modelo}
           {preferencia.catalogo_modelo_id && (
-            <span className="ml-2 txt-micro font-semibold text-azul-claro">
+            <span className="ml-2 txt-micro font-semibold text-ciano">
               do catálogo
             </span>
           )}
@@ -123,15 +123,18 @@ export function PreferenciaVeiculoSecao({
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2.5">
-        <p className="txt-pequeno text-cinza-texto">
-          Carro desejado (avisamos você quando chegar um parecido)
-        </p>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="rotulo-instrumento">Carro desejado</p>
+          <p className="mt-1 txt-pequeno text-cinza-texto">
+            Avisamos você quando um parecido entrar no estoque.
+          </p>
+        </div>
         {preferencias.length > 0 && !mostrarForm && (
           <button
             type="button"
             onClick={() => setMostrarForm(true)}
-            className="txt-pequeno font-semibold text-azul-claro hover:underline"
+            className="shrink-0 font-mostrador text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-ciano hover:text-branco"
           >
             + Adicionar
           </button>
@@ -155,7 +158,7 @@ export function PreferenciaVeiculoSecao({
       {mostrarForm && (
         <form
           action={formAction}
-          className="mt-4 rounded-2xl border border-white/10 bg-elevado/60 p-4 sm:p-5"
+          className="mt-4 rounded-sm border border-white/12 bg-recuo p-4 sm:p-5"
         >
           <CamposPreferencia catalogo={catalogo} prefixo="plano" />
           {estado.erro && (

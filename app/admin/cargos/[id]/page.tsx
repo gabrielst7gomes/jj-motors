@@ -27,7 +27,7 @@ export default async function DetalheCargoPage({
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="txt-titulo">{cargo.nome}</h1>
+        <h1 className="txt-titulo text-branco">{cargo.nome}</h1>
         <p className="mt-0.5 txt-pequeno text-cinza-texto">
           {(cargo.percentual_comissao * 100).toFixed(2)}% de comissão sobre a
           venda

@@ -21,7 +21,7 @@ export default async function EditarVeiculoPage({
   return (
     <div className="max-w-4xl space-y-9">
       <div>
-        <h1 className="txt-titulo">
+        <h1 className="txt-titulo text-branco">
           {veiculo.marca} {veiculo.modelo}
         </h1>
         <p className="mt-0.5 txt-pequeno text-cinza-texto">{veiculo.placa}</p>

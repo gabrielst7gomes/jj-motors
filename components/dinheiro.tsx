@@ -2,10 +2,10 @@ import { formatBRL } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
 /**
- * Exibe um valor monetário já calculado. Este componente NUNCA recebe number
- * nem faz conta de dinheiro — só formata a STRING (não o valor) para separar
- * visualmente os centavos, que ficam menores e em cinza-texto (design/
- * IDENTIDADE.md seção 4.2). O parsing de negócio continua 100% em formatBRL.
+ * Exibe um valor monetário já calculado. NUNCA recebe number nem faz conta —
+ * só formata a STRING para separar os centavos, que ficam menores e recuados
+ * (leitura de instrumento: o inteiro é o que importa). Parsing de negócio
+ * continua 100% em formatBRL.
  */
 export function Dinheiro({
   centavos,
@@ -14,7 +14,7 @@ export function Dinheiro({
 }: {
   centavos: bigint;
   className?: string;
-  /** false = não reduz os centavos (útil em contextos muito compactos). */
+  /** false = não reduz os centavos (contextos muito compactos). */
   tamanhoCentavos?: boolean;
 }) {
   const formatado = formatBRL(centavos);
@@ -29,7 +29,8 @@ export function Dinheiro({
 
   return (
     <span className={cn("valor-monetario", className)}>
-      {inteiro},<span className="centavos">{centavosStr}</span>
+      {inteiro}
+      <span className="centavos">,{centavosStr}</span>
     </span>
   );
 }

@@ -20,74 +20,81 @@ export default async function MeuPlanoPage() {
     getCatalogoModelosAtivos(),
   ]);
 
+  const linhas: [string, React.ReactNode][] = [
+    [
+      "Data de adesão",
+      new Date(plano.data_adesao).toLocaleDateString("pt-BR"),
+    ],
+    ["Dia de vencimento", `Todo dia ${plano.dia_vencimento}`],
+    [
+      "Aporte mensal previsto",
+      <Dinheiro
+        key="a"
+        centavos={BigInt(plano.aporte_mensal_previsto_centavos)}
+        className="font-mostrador font-semibold text-branco"
+        tamanhoCentavos={false}
+      />,
+    ],
+    [
+      "% mínimo exigido",
+      <span key="p" className="font-mostrador font-semibold text-branco">
+        {(plano.percentual_minimo * 100).toFixed(0)}%
+      </span>,
+    ],
+  ];
+
   return (
-    <div className="max-w-2xl space-y-8">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="txt-titulo">Meu plano</h1>
-          <p className="mt-0.5 txt-pequeno text-cinza-texto">{plano.codigo}</p>
-        </div>
+    <div className="max-w-2xl space-y-6">
+      <div className="flex items-baseline justify-between gap-3 border-b border-white/10 pb-3">
+        <h1 className="txt-titulo text-branco">
+          Meu plano{" "}
+          <span className="rotulo-campo align-middle">{plano.codigo}</span>
+        </h1>
         <StatusPlanoBadge status={plano.status} />
       </div>
 
-      <div>
-        <p className="border-b border-white/10 pb-2.5 txt-pequeno text-cinza-texto">
-          Saldo confirmado
-        </p>
+      <div className="mostrador p-5 md:p-6">
+        <p className="rotulo-instrumento">Saldo confirmado</p>
         <Dinheiro
           centavos={BigInt(saldo?.saldo_confirmado_centavos ?? 0)}
-          className="fonte-expandida mt-4 block txt-display"
+          className="leitura leitura-lg mt-2 block text-branco"
         />
         {(saldo?.saldo_pendente_centavos ?? 0) > 0 && (
-          <p className="mt-1.5 txt-pequeno text-cinza-texto">
+          <p className="mt-2 txt-pequeno text-cinza-texto">
             +{" "}
             <Dinheiro
               centavos={BigInt(saldo?.saldo_pendente_centavos ?? 0)}
-              className="inline txt-pequeno"
+              className="inline text-cinza-texto"
               tamanhoCentavos={false}
             />{" "}
             pendente de confirmação
           </p>
         )}
+
+        <dl className="mt-5 divide-y divide-white/10 border-t border-white/10">
+          {linhas.map(([label, valor]) => (
+            <div
+              key={label}
+              className="flex items-center justify-between gap-3 py-3"
+            >
+              <dt className="rotulo-campo">{label}</dt>
+              <dd className="txt-corpo">{valor}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
 
-      <dl className="divide-y divide-white/10 border-y border-white/10">
-        <div className="flex items-center justify-between py-3.5">
-          <dt className="txt-pequeno text-cinza-texto">Data de adesão</dt>
-          <dd className="txt-corpo font-medium">
-            {new Date(plano.data_adesao).toLocaleDateString("pt-BR")}
-          </dd>
-        </div>
-        <div className="flex items-center justify-between py-3.5">
-          <dt className="txt-pequeno text-cinza-texto">Dia de vencimento</dt>
-          <dd className="txt-corpo font-medium">
-            Todo dia {plano.dia_vencimento}
-          </dd>
-        </div>
-        <div className="flex items-center justify-between py-3.5">
-          <dt className="txt-pequeno text-cinza-texto">
-            Aporte mensal previsto
-          </dt>
-          <Dinheiro
-            centavos={BigInt(plano.aporte_mensal_previsto_centavos)}
-            className="txt-corpo font-medium"
-            tamanhoCentavos={false}
-          />
-        </div>
-        <div className="flex items-center justify-between py-3.5">
-          <dt className="txt-pequeno text-cinza-texto">% mínimo exigido</dt>
-          <dd className="txt-corpo font-medium tabular-nums">
-            {(plano.percentual_minimo * 100).toFixed(0)}%
-          </dd>
-        </div>
-      </dl>
-
-      <PreferenciaVeiculoSecao preferencias={preferencias} catalogo={catalogo} />
+      <div className="mostrador p-5 md:p-6">
+        <PreferenciaVeiculoSecao
+          preferencias={preferencias}
+          catalogo={catalogo}
+        />
+      </div>
 
       {plano.observacoes && (
-        <div>
-          <p className="txt-pequeno text-cinza-texto">Observações</p>
-          <p className="mt-1.5 txt-corpo">{plano.observacoes}</p>
+        <div className="mostrador p-5 md:p-6">
+          <p className="rotulo-instrumento">Observações</p>
+          <p className="mt-2 txt-corpo text-cinza-texto">{plano.observacoes}</p>
         </div>
       )}
     </div>

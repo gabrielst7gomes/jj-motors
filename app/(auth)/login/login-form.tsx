@@ -48,12 +48,14 @@ export function LoginForm() {
       </div>
 
       {estado.erro && (
-        <p role="alert" className="text-sm text-ambar">
+        <p role="alert" className="txt-pequeno text-ambar">
           {estado.erro}
         </p>
       )}
 
-      <BotaoEntrar />
+      <div className="pt-1">
+        <BotaoEntrar />
+      </div>
     </form>
   );
 }
