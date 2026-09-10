@@ -74,9 +74,9 @@ export default async function DetalheVeiculoPage({
                 />
                 Elegível
               </span>
-            ) : veiculo.status === "reservado" ? (
-              <span className="mt-1.5 shrink-0 txt-pequeno font-medium text-ambar">
-                Reservado
+            ) : veiculo.status === "vendido" ? (
+              <span className="mt-1.5 shrink-0 txt-pequeno font-medium text-cinza-inativo">
+                Vendido
               </span>
             ) : null}
           </div>
@@ -120,11 +120,17 @@ export default async function DetalheVeiculoPage({
               className="font-semibold"
               tamanhoCentavos={false}
             />{" "}
-            no seu saldo para ficar elegível a este veículo.
+            no seu saldo para ficar elegível — mas você já pode abrir uma
+            negociação e acertar as condições com um consultor.
           </p>
         )}
 
-        {minhaElegibilidade?.elegivel && <SimularParcelas veiculoId={id} />}
+        {plano && veiculo.status !== "vendido" && (
+          <SimularParcelas
+            veiculoId={id}
+            elegivel={minhaElegibilidade?.elegivel ?? false}
+          />
+        )}
 
         <details className="group border-t border-white/10 pt-4">
           <summary className="cursor-pointer txt-pequeno font-semibold text-cinza-texto group-open:text-branco">

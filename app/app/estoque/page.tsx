@@ -141,11 +141,6 @@ export default async function EstoqueCompletoPage({
                         />
                       </div>
                     ))}
-                  {!elegibilidadeVeiculo && v.status === "reservado" && (
-                    <span className="txt-micro text-cinza-inativo">
-                      Reservado
-                    </span>
-                  )}
                 </div>
               </div>
             </Link>

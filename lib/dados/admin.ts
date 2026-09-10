@@ -150,12 +150,20 @@ export async function getFotosVeiculoAdmin(veiculoId: string) {
   return data ?? [];
 }
 
-export async function getReservas() {
+/**
+ * Negociações. A RLS decide o escopo: staff vê todas, vendedor vê só as dos
+ * clientes vinculados a ele (negociacoes.vendedor_id = auth.uid()).
+ */
+export async function getNegociacoes() {
   const supabase = await createClient();
   const { data } = await supabase
-    .from("reservas")
+    .from("negociacoes")
     .select(
-      "*, planos(codigo, cliente_id, profiles!planos_cliente_id_fkey(nome_completo)), veiculos(marca, modelo, preco_venda_centavos)",
+      `*,
+       cliente:profiles!negociacoes_cliente_id_fkey (nome_completo, telefone_e164),
+       vendedor:profiles!negociacoes_vendedor_id_fkey (nome_completo),
+       planos (codigo),
+       veiculos (marca, modelo, versao, preco_venda_centavos, status)`,
     )
     .order("criado_em", { ascending: false });
   return data ?? [];

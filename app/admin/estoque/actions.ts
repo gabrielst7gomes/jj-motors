@@ -193,11 +193,10 @@ export async function alterarPreco(
   return { sucesso: true };
 }
 
-// A conversão de reserva em venda (antigo "marcar como vendido") agora exige
-// uma reserva ativa — é a RPC converter_reserva_em_venda, chamada em
-// app/admin/reservas/actions.ts. Ver decisão em docs/decisoes-tecnicas.md:
-// vender sem reserva não permite saber qual plano/vendedor comprou, e por
-// tabela impede calcular a comissão correta.
+// A venda (antigo "marcar como vendido") parte de uma NEGOCIAÇÃO — é a RPC
+// converter_negociacao_em_venda, chamada em app/admin/negociacoes/actions.ts.
+// É a negociação que sabe qual plano/cliente comprou e, por tabela, qual
+// vendedor recebe a comissão.
 
 /**
  * Prévia de "X clientes serão notificados" mostrada no formulário ANTES de

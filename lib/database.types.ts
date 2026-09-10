@@ -369,6 +369,99 @@ export type Database = {
         }
         Relationships: []
       }
+      negociacoes: {
+        Row: {
+          atualizado_em: string
+          cliente_id: string
+          criado_em: string
+          id: string
+          mensagem: string | null
+          plano_id: string
+          status: Database["public"]["Enums"]["status_negociacao"]
+          veiculo_id: string
+          vendedor_id: string | null
+        }
+        Insert: {
+          atualizado_em?: string
+          cliente_id: string
+          criado_em?: string
+          id?: string
+          mensagem?: string | null
+          plano_id: string
+          status?: Database["public"]["Enums"]["status_negociacao"]
+          veiculo_id: string
+          vendedor_id?: string | null
+        }
+        Update: {
+          atualizado_em?: string
+          cliente_id?: string
+          criado_em?: string
+          id?: string
+          mensagem?: string | null
+          plano_id?: string
+          status?: Database["public"]["Enums"]["status_negociacao"]
+          veiculo_id?: string
+          vendedor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "negociacoes_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negociacoes_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negociacoes_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "vw_elegibilidade"
+            referencedColumns: ["plano_id"]
+          },
+          {
+            foreignKeyName: "negociacoes_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "vw_saldo_cliente"
+            referencedColumns: ["plano_id"]
+          },
+          {
+            foreignKeyName: "negociacoes_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negociacoes_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "vw_elegibilidade"
+            referencedColumns: ["veiculo_id"]
+          },
+          {
+            foreignKeyName: "negociacoes_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "vw_veiculos_publico"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negociacoes_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notificacoes: {
         Row: {
           agendado_para: string
@@ -1054,9 +1147,74 @@ export type Database = {
       }
     }
     Functions: {
+      abrir_negociacao: {
+        Args: { p_mensagem?: string; p_veiculo_id: string }
+        Returns: {
+          atualizado_em: string
+          cliente_id: string
+          criado_em: string
+          id: string
+          mensagem: string | null
+          plano_id: string
+          status: Database["public"]["Enums"]["status_negociacao"]
+          veiculo_id: string
+          vendedor_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "negociacoes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      atualizar_status_negociacao: {
+        Args: {
+          p_negociacao_id: string
+          p_status: Database["public"]["Enums"]["status_negociacao"]
+        }
+        Returns: {
+          atualizado_em: string
+          cliente_id: string
+          criado_em: string
+          id: string
+          mensagem: string | null
+          plano_id: string
+          status: Database["public"]["Enums"]["status_negociacao"]
+          veiculo_id: string
+          vendedor_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "negociacoes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       auth_papel: {
         Args: never
         Returns: Database["public"]["Enums"]["papel_usuario"]
+      }
+      converter_negociacao_em_venda: {
+        Args: { p_negociacao_id: string }
+        Returns: {
+          criado_em: string
+          id: string
+          pago_em: string | null
+          percentual: number
+          plano_id: string
+          preco_venda_centavos: number
+          reserva_id: string | null
+          status: string
+          valor_centavos: number
+          veiculo_id: string
+          vendedor_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "comissoes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       converter_reserva_em_venda: {
         Args: { p_reserva_id: string }
@@ -1182,6 +1340,7 @@ export type Database = {
       meio_pagamento: "pix" | "dinheiro" | "ted" | "cartao" | "outro"
       papel_usuario: "admin" | "operador" | "cliente" | "vendedor"
       status_aporte: "pendente" | "confirmado" | "rejeitado"
+      status_negociacao: "nova" | "em_andamento" | "fechada" | "perdida"
       status_notificacao: "fila" | "enviada" | "entregue" | "lida" | "falha"
       status_plano: "ativo" | "suspenso" | "concluido" | "cancelado"
       status_proposta: "rascunho" | "aprovada" | "recusada" | "fechada"
@@ -1329,6 +1488,7 @@ export const Constants = {
       meio_pagamento: ["pix", "dinheiro", "ted", "cartao", "outro"],
       papel_usuario: ["admin", "operador", "cliente", "vendedor"],
       status_aporte: ["pendente", "confirmado", "rejeitado"],
+      status_negociacao: ["nova", "em_andamento", "fechada", "perdida"],
       status_notificacao: ["fila", "enviada", "entregue", "lida", "falha"],
       status_plano: ["ativo", "suspenso", "concluido", "cancelado"],
       status_proposta: ["rascunho", "aprovada", "recusada", "fechada"],

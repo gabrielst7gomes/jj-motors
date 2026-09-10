@@ -7,20 +7,23 @@ import { createClient } from "@/lib/supabase/server";
 
 const entradaSchema = z.object({
   veiculoId: z.string().uuid(),
+  mensagem: z.string().trim().max(500).optional().or(z.literal("")),
 });
 
-export type ResultadoReserva =
-  | { ok: true; reservaId: string }
+export type ResultadoNegociacao =
+  | { ok: true; negociacaoId: string }
   | { ok: false; erro: string };
 
 /**
- * Chama a RPC transacional `criar_reserva` (lock + revalida elegibilidade no
- * servidor — nunca confiamos no client). Ver supabase/migrations/
- * 20260101000700_rpc_reserva.sql.
+ * Cliente abre negociação de um veículo — pedido do usuário: "ao invés de
+ * aparecer para reservar, coloque 'abrir negociação'". Chama a RPC
+ * `abrir_negociacao` (SECURITY DEFINER, sem trava de veículo e sem exigir os
+ * 50%). Idempotente: se já houver negociação viva, devolve ela.
+ * Ver supabase/migrations/20260101001800_negociacoes.sql.
  */
-export async function reservarVeiculoAction(
+export async function abrirNegociacaoAction(
   input: unknown,
-): Promise<ResultadoReserva> {
+): Promise<ResultadoNegociacao> {
   const parsed = entradaSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, erro: "Dados inválidos" };
@@ -34,8 +37,9 @@ export async function reservarVeiculoAction(
     return { ok: false, erro: "Não autenticado" };
   }
 
-  const { data, error } = await supabase.rpc("criar_reserva", {
+  const { data, error } = await supabase.rpc("abrir_negociacao", {
     p_veiculo_id: parsed.data.veiculoId,
+    p_mensagem: parsed.data.mensagem || undefined,
   });
 
   if (error) {
@@ -43,22 +47,18 @@ export async function reservarVeiculoAction(
   }
 
   revalidatePath("/app");
-  revalidatePath("/app/elegiveis");
-  revalidatePath("/app/estoque");
+  revalidatePath("/app/negociacoes");
   revalidatePath(`/app/veiculos/${parsed.data.veiculoId}`);
 
-  return { ok: true, reservaId: data.id };
+  return { ok: true, negociacaoId: data.id };
 }
 
 function mensagemAmigavel(mensagemOriginal: string): string {
-  if (mensagemOriginal.includes("não está disponível")) {
-    return "Este veículo acabou de ser reservado por outro cliente.";
-  }
-  if (mensagemOriginal.includes("Saldo insuficiente")) {
-    return "Seu saldo não é mais suficiente para este veículo.";
+  if (mensagemOriginal.includes("já foi vendido")) {
+    return "Este veículo já foi vendido.";
   }
   if (mensagemOriginal.includes("sem plano ativo")) {
     return "Você não tem um plano ativo no momento.";
   }
-  return "Não foi possível reservar este veículo. Tente novamente.";
+  return "Não foi possível abrir a negociação. Tente novamente.";
 }

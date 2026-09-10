@@ -21,6 +21,7 @@ truncate table
   public.notificacoes,
   public.propostas,
   public.reservas,
+  public.negociacoes,
   public.veiculo_precos_historico,
   public.veiculo_fotos,
   public.preferencias_veiculo,

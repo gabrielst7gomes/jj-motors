@@ -105,8 +105,8 @@ export function BlocoVeredito({ veiculos }: { veiculos: VeiculoElegivel[] }) {
       <Button asChild className="mt-6 w-full md:w-auto">
         <Link href="/app/elegiveis">
           {veiculos.length === 1
-            ? "Reservar este carro"
-            : "Reservar um destes carros"}
+            ? "Negociar este carro"
+            : "Negociar um destes carros"}
         </Link>
       </Button>
     </section>

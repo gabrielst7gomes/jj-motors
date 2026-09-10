@@ -5,7 +5,13 @@ import { ShellAdmin, type LinkAdmin } from "@/components/shell-admin";
 import { createClient } from "@/lib/supabase/server";
 import { getMinhasPermissoes, temPermissao } from "@/lib/dados/permissoes";
 
-type LinkComRegra = LinkAdmin & { permissao: string | null; soStaff?: boolean };
+type LinkComRegra = LinkAdmin & {
+  permissao: string | null;
+  soStaff?: boolean;
+  // Sempre visível para vendedor (mesmo sem a permissão): a tela filtra por RLS
+  // o que ele pode ver (ex.: só as negociações / comissões dos clientes dele).
+  sempreVendedor?: boolean;
+};
 
 const LINKS: LinkComRegra[] = [
   { href: "/admin" as Route, label: "Dashboard", permissao: null },
@@ -13,7 +19,7 @@ const LINKS: LinkComRegra[] = [
   { href: "/admin/aportes" as Route, label: "Lançar aporte", permissao: "aportes.confirmar" },
   { href: "/admin/estoque" as Route, label: "Estoque", permissao: "estoque.editar" },
   { href: "/admin/catalogo" as Route, label: "Catálogo de modelos", permissao: "estoque.editar" },
-  { href: "/admin/reservas" as Route, label: "Reservas e propostas", permissao: "reservas.gerenciar" },
+  { href: "/admin/negociacoes" as Route, label: "Negociações", permissao: "reservas.gerenciar", sempreVendedor: true },
   { href: "/admin/vendedores" as Route, label: "Vendedores", permissao: null, soStaff: true },
   { href: "/admin/cargos" as Route, label: "Cargos", permissao: null, soStaff: true },
   { href: "/admin/comissoes" as Route, label: "Comissões", permissao: null },
@@ -50,6 +56,7 @@ export default async function PainelAdminLayout({
 
   const linksVisiveis = LINKS.filter((link) => {
     if (link.soStaff) return ehStaff;
+    if (link.sempreVendedor && ehVendedor) return true;
     if (!link.permissao) return true;
     return temPermissao(permissoes, link.permissao);
   });

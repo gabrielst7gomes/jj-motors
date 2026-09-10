@@ -191,7 +191,13 @@ docs/
 - **`aportes`** — ledger **append-only**. Estados `pendente → confirmado | rejeitado`.
   Só `confirmado` entra no saldo. Correção = `estorno` negativo.
 - **`veiculos`** + `veiculo_fotos` + `veiculo_precos_historico` — estoque.
-- **`reservas`** + `propostas` — funil de aquisição.
+- **`negociacoes`** — sinal de interesse do cliente num veículo. **Não trava**
+  o carro (vários clientes por veículo, ao contrário de `reservas`) e **não
+  exige os 50%** — o vendedor vinculado ao plano (`planos.vendedor_id`) atende
+  pelo WhatsApp (link `wa.me` na tela `/admin/negociacoes`). Fechar a venda
+  (`converter_negociacao_em_venda`) marca o veículo como vendido, encerra as
+  outras negociações dele e gera a comissão. `reservas`/`propostas`
+  continuam no schema mas o app não usa mais.
 - **`catalogo_modelos`** — modelos pré-fixados (marca/modelo + faixa de anos),
   gerenciados no `/admin`. O cliente escolhe daqui (ou digita "outro") ao
   registrar o carro desejado.

@@ -210,3 +210,13 @@ export async function getCatalogoModelosAtivos() {
     .order("modelo", { ascending: true });
   return data ?? [];
 }
+
+/** Negociações abertas pelo cliente (RLS já limita às dele). */
+export async function getMinhasNegociacoes() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("negociacoes")
+    .select("*, veiculos(marca, modelo, versao, preco_venda_centavos, status)")
+    .order("criado_em", { ascending: false });
+  return data ?? [];
+}

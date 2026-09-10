@@ -116,7 +116,7 @@ export default async function VeiculosElegiveisPage() {
 
                   <Button asChild className="mt-4 w-full" size="sm">
                     <Link href={`/app/veiculos/${v.veiculo_id}`}>
-                      Reservar
+                      Abrir negociação
                     </Link>
                   </Button>
                 </div>

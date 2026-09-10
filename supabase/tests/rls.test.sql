@@ -153,7 +153,43 @@ begin
       'FALHA: preferência do catálogo não guardou o vínculo';
   end;
 
-  raise notice 'OK: todas as 18 asserções de isolamento RLS passaram.';
+  -- 19) Ana abre negociação de um veículo qualquer (não exige elegibilidade)
+  -- e consegue ler a própria negociação; NÃO vê a de Bruno.
+  declare
+    v_veic uuid;
+    v_negoc public.negociacoes%rowtype;
+  begin
+    -- Ana não tem policy em `veiculos`; usa a view pública (que ela pode ler).
+    select id into v_veic from public.vw_veiculos_publico
+      order by preco_venda_centavos desc limit 1; -- o mais caro (Ana não é elegível)
+    v_negoc := public.abrir_negociacao(v_veic, 'tenho interesse');
+    assert v_negoc.cliente_id = '00000000-0000-0000-0000-0000000000c1',
+      'FALHA: negociação não foi criada para Ana';
+
+    select count(*) into n from public.negociacoes
+      where cliente_id = '00000000-0000-0000-0000-0000000000c1';
+    assert n = 1, format('FALHA: Ana deveria ver 1 negociação própria, viu %s', n);
+
+    select count(*) into n from public.negociacoes
+      where cliente_id = '00000000-0000-0000-0000-0000000000c2';
+    assert n = 0, format('FALHA: Ana viu %s negociação(ões) de Bruno', n);
+  end;
+
+  -- 20) Ana NÃO consegue inserir negociação direto na tabela (só via RPC).
+  begin
+    insert into public.negociacoes (veiculo_id, plano_id, cliente_id)
+    values (
+      (select id from public.vw_veiculos_publico limit 1),
+      '00000000-0000-0000-0000-0000000000b1',
+      '00000000-0000-0000-0000-0000000000c1'
+    );
+    assert false, 'FALHA: Ana inseriu negociação direto na tabela (RLS deveria barrar)';
+  exception
+    when insufficient_privilege then
+      null; -- esperado
+  end;
+
+  raise notice 'OK: todas as 20 asserções de isolamento RLS passaram.';
 end $$;
 
 rollback;
