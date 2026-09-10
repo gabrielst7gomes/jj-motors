@@ -19,6 +19,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "placehold.co",
       },
+      {
+        // Fotos ILUSTRATIVAS do seed (até a JJ Motors subir as fotos reais
+        // dos veículos via Storage). Ver supabase/seed.sql.
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
     ],
   },
 };

@@ -6,6 +6,7 @@ import {
   getMeuSaldo,
   getMinhasPreferenciasVeiculo,
 } from "@/lib/dados/cliente";
+import { somaMesesCalendario } from "@/lib/elegibilidade";
 import { PreferenciaVeiculoSecao } from "./preferencia-form";
 
 export default async function MeuPlanoPage() {
@@ -20,20 +21,25 @@ export default async function MeuPlanoPage() {
     getCatalogoModelosAtivos(),
   ]);
 
+  const dataAdesao = new Date(plano.data_adesao);
+  const carenciaAte = somaMesesCalendario(dataAdesao, 3);
+  const carenciaCumprida = carenciaAte.getTime() <= Date.now();
+
   const linhas: [string, React.ReactNode][] = [
+    ["Data de adesão", dataAdesao.toLocaleDateString("pt-BR")],
     [
-      "Data de adesão",
-      new Date(plano.data_adesao).toLocaleDateString("pt-BR"),
-    ],
-    ["Dia de vencimento", `Todo dia ${plano.dia_vencimento}`],
-    [
-      "Aporte mensal previsto",
-      <Dinheiro
-        key="a"
-        centavos={BigInt(plano.aporte_mensal_previsto_centavos)}
-        className="font-mostrador font-semibold text-branco"
-        tamanhoCentavos={false}
-      />,
+      "Compra libera em",
+      <span
+        key="c"
+        className={
+          "font-mostrador font-semibold " +
+          (carenciaCumprida ? "text-ciano" : "text-branco")
+        }
+      >
+        {carenciaCumprida
+          ? "liberada"
+          : carenciaAte.toLocaleDateString("pt-BR")}
+      </span>,
     ],
     [
       "% mínimo exigido",

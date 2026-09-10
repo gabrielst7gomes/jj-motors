@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
 
 import { Dinheiro } from "@/components/dinheiro";
 import { formatBRL } from "@/lib/money";
+import { formatarData } from "@/lib/carencia";
 
 export type CardVeiculoProps = {
   href: Route;
@@ -15,17 +16,21 @@ export type CardVeiculoProps = {
   km?: number | null;
   precoVendaCentavos: bigint;
   capaUrl?: string | null;
-  /** undefined = sem plano/dado; true = elegível; false = falta saldo */
+  /** saldo cobre a entrada (independente da carência) */
+  saldoOk?: boolean;
+  /** pode negociar agora (saldo + carência) */
   elegivel?: boolean;
+  /** data em que a carência termina — mostrada quando saldoOk mas !elegivel */
+  carenciaAte?: string | Date | null;
   valorFaltanteCentavos?: bigint;
   entradaCentavos?: bigint;
 };
 
 /**
- * Card de veículo — usado no estoque e nos elegíveis. Elegível = mostrador
- * com a luz de permissão acesa (moldura vermelha + glow). Não elegível =
- * mostrador comum, com "faltam R$ X" em âmbar. Foto com aspecto 16/10,
- * sobre-hover a foto amplia levemente (só a foto, não o card).
+ * Card de veículo (estoque / elegíveis). Três estados:
+ *  - `elegivel`: mostrador com a luz de permissão acesa (moldura vermelha).
+ *  - `saldoOk` mas na carência: mostrador comum + selo "a partir de DD/MM".
+ *  - falta saldo: mostrador comum + "faltam R$ X" em âmbar.
  */
 export function CardVeiculo({
   href,
@@ -36,10 +41,14 @@ export function CardVeiculo({
   km,
   precoVendaCentavos,
   capaUrl,
+  saldoOk,
   elegivel,
+  carenciaAte,
   valorFaltanteCentavos,
   entradaCentavos,
 }: CardVeiculoProps) {
+  const emCarencia = !!saldoOk && !elegivel;
+
   return (
     <Link
       href={href}
@@ -73,6 +82,14 @@ export function CardVeiculo({
             </span>
           </div>
         )}
+        {emCarencia && (
+          <div className="absolute right-2.5 top-2.5 flex items-center gap-1.5 rounded-xs border border-ciano/40 bg-base/70 px-2 py-1 backdrop-blur-sm">
+            <Clock className="h-3 w-3 text-ciano" strokeWidth={2} aria-hidden />
+            <span className="font-mostrador text-[0.625rem] font-semibold uppercase tracking-[0.08em] text-ciano">
+              Saldo pronto
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col p-4">
@@ -80,7 +97,11 @@ export function CardVeiculo({
           {marca} {modelo}
         </h3>
         <p className="mt-0.5 txt-micro text-cinza-texto">
-          {[versao, anoModelo, km != null ? `${km.toLocaleString("pt-BR")} km` : null]
+          {[
+            versao,
+            anoModelo,
+            km != null ? `${km.toLocaleString("pt-BR")} km` : null,
+          ]
             .filter(Boolean)
             .join(" · ")}
         </p>
@@ -93,6 +114,11 @@ export function CardVeiculo({
                 ? precoVendaCentavos - entradaCentavos
                 : 0n,
             )}
+          </p>
+        )}
+        {emCarencia && carenciaAte && (
+          <p className="mt-2 txt-micro text-ciano">
+            Disponível a partir de {formatarData(carenciaAte)}
           </p>
         )}
 
@@ -111,7 +137,7 @@ export function CardVeiculo({
               strokeWidth={1.75}
               aria-hidden
             />
-          ) : valorFaltanteCentavos != null ? (
+          ) : !saldoOk && valorFaltanteCentavos != null ? (
             <div className="text-right">
               <p className="rotulo-campo">Faltam</p>
               <Dinheiro

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 
 import { CardVeiculo } from "@/components/card-veiculo";
+import { formatarData } from "@/lib/carencia";
 import {
   getCapasVeiculos,
   getMeuPlanoAtivo,
@@ -11,33 +12,33 @@ import {
 export default async function VeiculosElegiveisPage() {
   const plano = await getMeuPlanoAtivo();
   if (!plano) {
-    return (
-      <p className="txt-corpo text-cinza-texto">Nenhum plano ativo.</p>
-    );
+    return <p className="txt-corpo text-cinza-texto">Nenhum plano ativo.</p>;
   }
 
   const elegibilidade = await getMinhaElegibilidade(plano.id);
-  const elegiveis = elegibilidade.filter((v) => v.elegivel);
-  const capas = await getCapasVeiculos(elegiveis.map((v) => v.veiculo_id));
+  const comSaldo = elegibilidade.filter((v) => v.saldo_ok);
+  const liberados = comSaldo.filter((v) => v.elegivel);
+  const emCarencia = comSaldo.filter((v) => !v.elegivel);
+  const capas = await getCapasVeiculos(comSaldo.map((v) => v.veiculo_id));
+  const carenciaAte = emCarencia[0]?.carencia_ate ?? null;
 
   return (
     <div className="space-y-6">
       <div className="border-b border-white/10 pb-3">
         <h1 className="txt-titulo text-branco">
-          {elegiveis.length}{" "}
-          {elegiveis.length === 1 ? "veículo liberado" : "veículos liberados"}{" "}
-          para você
+          {comSaldo.length}{" "}
+          {comSaldo.length === 1 ? "carro ao seu alcance" : "carros ao seu alcance"}
         </h1>
         <p className="mt-1.5 max-w-[54ch] txt-pequeno text-cinza-texto">
-          Seu saldo cobre a entrada. O restante fica em promissória direto com
-          a JJ Motors — sem banco.
+          Seu saldo cobre a entrada de 50%. O restante fica em promissória
+          direto com a JJ Motors — sem banco.
         </p>
       </div>
 
-      {elegiveis.length === 0 ? (
+      {comSaldo.length === 0 ? (
         <div className="mostrador p-8 text-center">
           <p className="txt-corpo text-cinza-texto">
-            Nenhum veículo liberado ainda.
+            Nenhum carro ao seu alcance ainda.
           </p>
           <Link
             href="/app/estoque"
@@ -47,20 +48,58 @@ export default async function VeiculosElegiveisPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 xl:grid-cols-3">
-          {elegiveis.map((v) => (
-            <CardVeiculo
-              key={v.veiculo_id}
-              href={`/app/veiculos/${v.veiculo_id}` as Route}
-              marca={v.marca}
-              modelo={v.modelo}
-              versao={v.versao}
-              precoVendaCentavos={BigInt(v.preco_venda_centavos)}
-              capaUrl={capas.get(v.veiculo_id)}
-              elegivel
-              entradaCentavos={BigInt(v.saldo_confirmado_centavos)}
-            />
-          ))}
+        <div className="space-y-8">
+          {liberados.length > 0 && (
+            <div>
+              <p className="rotulo-instrumento text-vermelho-texto">
+                Liberados agora
+              </p>
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 xl:grid-cols-3">
+                {liberados.map((v) => (
+                  <CardVeiculo
+                    key={v.veiculo_id}
+                    href={`/app/veiculos/${v.veiculo_id}` as Route}
+                    marca={v.marca}
+                    modelo={v.modelo}
+                    versao={v.versao}
+                    precoVendaCentavos={BigInt(v.preco_venda_centavos)}
+                    capaUrl={capas.get(v.veiculo_id)}
+                    saldoOk
+                    elegivel
+                    entradaCentavos={BigInt(v.saldo_confirmado_centavos)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {emCarencia.length > 0 && (
+            <div>
+              <p className="rotulo-instrumento text-ciano">
+                Saldo pronto · liberam em {carenciaAte ? formatarData(carenciaAte) : "breve"}
+              </p>
+              <p className="mt-1.5 max-w-[54ch] txt-pequeno text-cinza-texto">
+                A compra libera após 3 meses de Compra Programada. Seu saldo já
+                cobre a entrada destes — continue aportando para ter mais
+                opções quando a carência passar.
+              </p>
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 xl:grid-cols-3">
+                {emCarencia.map((v) => (
+                  <CardVeiculo
+                    key={v.veiculo_id}
+                    href={`/app/veiculos/${v.veiculo_id}` as Route}
+                    marca={v.marca}
+                    modelo={v.modelo}
+                    versao={v.versao}
+                    precoVendaCentavos={BigInt(v.preco_venda_centavos)}
+                    capaUrl={capas.get(v.veiculo_id)}
+                    saldoOk
+                    carenciaAte={v.carencia_ate}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -40,8 +40,6 @@ export async function criarClienteComPlano(
   const dadosPlano = planoSchema.safeParse({
     clienteId: "00000000-0000-0000-0000-000000000000", // placeholder, preenchido após criar o usuário
     percentualMinimo: formData.get("percentualMinimo") || "0.5",
-    aporteMensalPrevisto: formData.get("aporteMensalPrevisto"),
-    diaVencimento: formData.get("diaVencimento") || "10",
     veiculoAlvoId: formData.get("veiculoAlvoId") ?? "",
     vendedorId: formData.get("vendedorId") ?? "",
     observacoes: formData.get("observacoes") ?? "",
@@ -77,8 +75,6 @@ export async function criarClienteComPlano(
       // vindos de trigger.
       codigo: "",
       percentual_minimo: dadosPlano.data.percentualMinimo,
-      aporte_mensal_previsto_centavos: Number(dadosPlano.data.aporteMensalPrevisto),
-      dia_vencimento: dadosPlano.data.diaVencimento,
       veiculo_alvo_id: dadosPlano.data.veiculoAlvoId || null,
       vendedor_id: dadosPlano.data.vendedorId || null,
       observacoes: dadosPlano.data.observacoes || null,
@@ -102,8 +98,6 @@ export async function criarClienteComPlano(
     dadosDepois: {
       cliente_id: novoUsuario.user.id,
       percentualMinimo: dadosPlano.data.percentualMinimo,
-      aporteMensalPrevistoCentavos: Number(dadosPlano.data.aporteMensalPrevisto),
-      diaVencimento: dadosPlano.data.diaVencimento,
       veiculoAlvoId: dadosPlano.data.veiculoAlvoId || null,
       observacoes: dadosPlano.data.observacoes || null,
     },

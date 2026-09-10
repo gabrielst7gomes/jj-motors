@@ -2,15 +2,6 @@ import { z } from "zod";
 
 import { parseBRL } from "@/lib/money";
 
-const centavosSchema = z.string().min(1).transform((valor, ctx) => {
-  try {
-    return parseBRL(valor);
-  } catch {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Valor inválido" });
-    return z.NEVER;
-  }
-});
-
 /** Espelha profiles_cpf_formato e profiles_telefone_e164_formato do banco. */
 export const clienteSchema = z.object({
   nomeCompleto: z.string().trim().min(1, "Informe o nome completo"),
@@ -30,8 +21,6 @@ export type ClienteInput = z.infer<typeof clienteSchema>;
 export const planoSchema = z.object({
   clienteId: z.string().uuid(),
   percentualMinimo: z.coerce.number().min(0.01).max(1),
-  aporteMensalPrevisto: centavosSchema,
-  diaVencimento: z.coerce.number().int().min(1).max(28),
   veiculoAlvoId: z.string().uuid().optional().or(z.literal("")),
   vendedorId: z.string().uuid().optional().or(z.literal("")),
   observacoes: z.string().trim().optional().or(z.literal("")),

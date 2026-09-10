@@ -69,6 +69,15 @@ begin
   select count(*) into n from public.vw_elegibilidade where cliente_id = '00000000-0000-0000-0000-0000000000c1' and elegivel;
   assert n = 2, format('FALHA: Ana deveria ser elegível para 2 veículos (Gol e Argo), o teste viu %s', n);
 
+  -- 8b) Ana aderiu há 9 meses -> carência (3 meses) cumprida em todas as linhas.
+  select count(*) into n from public.vw_elegibilidade
+    where cliente_id = '00000000-0000-0000-0000-0000000000c1' and not carencia_ok;
+  assert n = 0, format('FALHA: Ana (adesão há 9 meses) não deveria ter carencia_ok=false, tem %s', n);
+  -- saldo_ok e elegivel batem para Ana (carência já passou).
+  select count(*) into n from public.vw_elegibilidade
+    where cliente_id = '00000000-0000-0000-0000-0000000000c1' and saldo_ok <> elegivel;
+  assert n = 0, format('FALHA: para Ana, saldo_ok deveria ser igual a elegivel (carência ok), %s divergem', n);
+
   -- 9) Ana NÃO acessa a tabela `veiculos` diretamente (sem policy para cliente).
   select count(*) into n from public.veiculos;
   assert n = 0, format('FALHA: Ana leu %s linha(s) da tabela veiculos (deveria ser 0)', n);
@@ -189,7 +198,7 @@ begin
       null; -- esperado
   end;
 
-  raise notice 'OK: todas as 20 asserções de isolamento RLS passaram.';
+  raise notice 'OK: todas as 22 asserções de isolamento RLS passaram.';
 end $$;
 
 rollback;

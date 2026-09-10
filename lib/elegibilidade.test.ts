@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { calcularElegibilidade } from "./elegibilidade";
+import { calcularElegibilidade, somaMesesCalendario } from "./elegibilidade";
 
 describe("calcularElegibilidade", () => {
   it("saldo exato no limite (meta) é elegível e falta zero", () => {
@@ -147,5 +147,82 @@ describe("calcularElegibilidade", () => {
         saldoConfirmadoCentavos: 0n,
       }),
     ).toThrow();
+  });
+});
+
+describe("carência de 3 meses", () => {
+  const base = {
+    precoVendaCentavos: 3_800_000n,
+    percentualMinimo: 0.5,
+    saldoConfirmadoCentavos: 5_000_000n, // saldo de sobra
+  };
+
+  it("sem dataAdesao, carência é ignorada (elegivel = saldoOk)", () => {
+    const r = calcularElegibilidade(base);
+    expect(r.carenciaOk).toBe(true);
+    expect(r.carenciaAte).toBeUndefined();
+    expect(r.elegivel).toBe(true);
+  });
+
+  it("com saldo mas dentro da carência: saldoOk true, carenciaOk false, NÃO elegível", () => {
+    const r = calcularElegibilidade({
+      ...base,
+      dataAdesao: "2026-08-01",
+      hoje: new Date("2026-09-15"), // 1,5 mês depois
+    });
+    expect(r.saldoOk).toBe(true);
+    expect(r.carenciaOk).toBe(false);
+    expect(r.elegivel).toBe(false);
+    expect(r.carenciaAte).toEqual(somaMesesCalendario(new Date("2026-08-01"), 3));
+  });
+
+  it("exatamente no fim da carência (dia = data-limite): elegível", () => {
+    const r = calcularElegibilidade({
+      ...base,
+      dataAdesao: "2026-06-10",
+      hoje: new Date("2026-09-10"), // exatamente 3 meses
+    });
+    expect(r.carenciaOk).toBe(true);
+    expect(r.elegivel).toBe(true);
+  });
+
+  it("um dia antes do fim da carência: NÃO elegível", () => {
+    const r = calcularElegibilidade({
+      ...base,
+      dataAdesao: "2026-06-10",
+      hoje: new Date("2026-09-09"),
+    });
+    expect(r.carenciaOk).toBe(false);
+    expect(r.elegivel).toBe(false);
+  });
+
+  it("carência cumprida mas sem saldo: NÃO elegível, e a falta de saldo é o bloqueio", () => {
+    const r = calcularElegibilidade({
+      precoVendaCentavos: 3_800_000n,
+      percentualMinimo: 0.5,
+      saldoConfirmadoCentavos: 1_000_000n, // falta 900.000
+      dataAdesao: "2025-01-01",
+      hoje: new Date("2026-09-15"),
+    });
+    expect(r.carenciaOk).toBe(true);
+    expect(r.saldoOk).toBe(false);
+    expect(r.elegivel).toBe(false);
+    expect(r.valorFaltanteCentavos).toBe(900_000n);
+  });
+
+  it("carenciaMeses configurável (ex.: 6)", () => {
+    const r = calcularElegibilidade({
+      ...base,
+      dataAdesao: "2026-06-01",
+      carenciaMeses: 6,
+      hoje: new Date("2026-09-15"),
+    });
+    expect(r.carenciaOk).toBe(false); // só 3,5 dos 6 meses
+  });
+
+  it("somaMesesCalendario faz clamp de fim de mês (31/01 + 1 mês)", () => {
+    const r = somaMesesCalendario(new Date("2026-01-31"), 1);
+    expect(r.getMonth()).toBe(1); // fevereiro
+    expect(r.getDate()).toBe(28); // 2026 não é bissexto
   });
 });

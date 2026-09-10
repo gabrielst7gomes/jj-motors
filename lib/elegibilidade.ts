@@ -1,26 +1,22 @@
 /**
  * lib/elegibilidade.ts — regra de elegibilidade como função pura.
  *
- * REGRA 3.3:
- *   meta            = ROUND(preco_venda * percentual_minimo)   [half-up, decisão A1]
- *   elegivel        = saldo_confirmado >= meta
- *   valor_faltante  = meta - saldo_confirmado   (>= 0; 0 quando elegível)
+ * REGRA (após a mudança de 2026-09-10 — carência):
+ *   meta            = ROUND(preco_venda * percentual_minimo)   [half-up]
+ *   saldoOk         = saldo_confirmado >= meta
+ *   carenciaOk      = data_adesao + N meses de calendário <= hoje  (N default 3)
+ *   elegivel        = saldoOk E carenciaOk
+ *   valor_faltante  = meta - saldo_confirmado   (>= 0; 0 quando saldoOk)
  *
- * Espelha EXATAMENTE a função SQL `meta_centavos()` e a view `vw_elegibilidade`
- * (supabase/migrations/20260101000000_extensions.sql e .../000300_views.sql).
- * Os testes de borda garantem que os dois lados concordam.
+ * Espelha EXATAMENTE a função SQL `meta_centavos()`, `meses_carencia()` e a
+ * view `vw_elegibilidade` (migrations 20260101000000, 20260101001100,
+ * 20260101001900). Os testes de borda garantem que os dois lados concordam.
  *
- * Por que a fração é {numerador, denominador} e não `number`:
- * `percentual_minimo` é armazenado no banco como NUMERIC(4,3) (ex.: 0.500,
- * 0.600). Representá-lo como `number` em JS e multiplicar por um bigint exige
- * converter o bigint para number em algum momento, o que é exatamente o que a
- * regra 3.1 proíbe (perda de precisão em valores grandes). Em vez disso,
- * tratamos o percentual como uma fração exata de inteiros — para um
- * NUMERIC(4,3) isso é sempre round(percentual * 1000) / 1000 — e fazemos toda
- * a aritmética em BigInt.
+ * Dinheiro em BigInt (regra 3.1). O percentual (NUMERIC(4,3) no banco) é
+ * tratado como fração exata de inteiros sobre 1000, nunca como float
+ * multiplicando um bigint.
  */
 
-/** Percentual mínimo com 3 casas decimais, como vem de NUMERIC(4,3) no banco. */
 export type PercentualMinimo = number;
 
 export type EntradaElegibilidade = {
@@ -28,24 +24,26 @@ export type EntradaElegibilidade = {
   precoVendaCentavos: bigint;
   /** Fração do preço exigida. Padrão 0.5. Configurável por plano. */
   percentualMinimo: PercentualMinimo;
+  /** Data de adesão do plano (ISO "YYYY-MM-DD" ou Date). Omitir = ignora carência. */
+  dataAdesao?: string | Date;
+  /** Meses de carência de calendário. Padrão 3. */
+  carenciaMeses?: number;
+  /** "Hoje" — injetável para teste. Padrão: agora. */
+  hoje?: Date;
 };
 
 export type ResultadoElegibilidade = {
   metaCentavos: bigint;
+  saldoOk: boolean;
+  carenciaOk: boolean;
+  /** Data (fim do dia) em que a carência termina. undefined se sem dataAdesao. */
+  carenciaAte?: Date;
   elegivel: boolean;
   valorFaltanteCentavos: bigint;
 };
 
-/** Denominador fixo: percentual_minimo é NUMERIC(4,3) -> 3 casas decimais. */
 const DENOMINADOR = 1000n;
 
-/**
- * Converte o percentual (number, até 3 casas decimais) em numerador inteiro
- * sobre DENOMINADOR = 1000. Ex.: 0.5 -> 500n; 0.6 -> 600n; 0.505 -> 505n.
- *
- * Arredonda para o milésimo mais próximo antes de truncar, para absorver
- * imprecisão de ponto flutuante ao representar, por ex., 0.1 + 0.4.
- */
 function percentualParaNumerador(percentual: number): bigint {
   if (!Number.isFinite(percentual) || percentual <= 0 || percentual > 1) {
     throw new Error(
@@ -55,16 +53,6 @@ function percentualParaNumerador(percentual: number): bigint {
   return BigInt(Math.round(percentual * 1000));
 }
 
-/**
- * ROUND(preco * percentual), half-up, em aritmética inteira de BigInt.
- *
- * Equivale a: round(precoVendaCentavos * percentualMinimo) no SQL, para
- * percentual sempre positivo (half-up == half-away-from-zero nesse caso).
- *
- * Implementação: preco * numerador é sempre um bigint exato; dividimos por
- * DENOMINADOR "half-up" somando metade do denominador antes da divisão
- * inteira (válido porque preco > 0 e numerador > 0, logo o produto é >= 0).
- */
 function metaCentavos(
   precoVendaCentavos: bigint,
   percentualMinimo: PercentualMinimo,
@@ -79,19 +67,69 @@ function metaCentavos(
   return (produto + DENOMINADOR / 2n) / DENOMINADOR;
 }
 
+/**
+ * Soma N meses de calendário a uma data, espelhando `make_interval(months=>N)`
+ * do Postgres. O Postgres, ao somar meses, mantém o dia e faz clamp para o
+ * último dia do mês quando o dia não existe (31 jan + 1 mês = 28/29 fev).
+ * `Date.setMonth` do JS já faz esse comportamento de clamp via overflow, o
+ * que não bate exatamente com o do Postgres em casos de fim de mês; para a
+ * carência (comparação `<=` contra "hoje", granularidade de dia) a diferença
+ * de no máximo ~3 dias em datas de virada de mês é aceitável e conservadora.
+ */
+export function somaMesesCalendario(base: Date, meses: number): Date {
+  const d = new Date(base.getTime());
+  const diaOriginal = d.getDate();
+  d.setMonth(d.getMonth() + meses);
+  // Clamp: se o mês "pulou" (ex.: 31/01 + 1 = 03/03), volta pro último dia do
+  // mês alvo — igual ao Postgres.
+  if (d.getDate() < diaOriginal) {
+    d.setDate(0);
+  }
+  return d;
+}
+
 export function calcularElegibilidade(
   entrada: EntradaElegibilidade,
 ): ResultadoElegibilidade {
-  const { saldoConfirmadoCentavos, precoVendaCentavos, percentualMinimo } =
-    entrada;
+  const {
+    saldoConfirmadoCentavos,
+    precoVendaCentavos,
+    percentualMinimo,
+    dataAdesao,
+    carenciaMeses = 3,
+    hoje = new Date(),
+  } = entrada;
 
   const meta = metaCentavos(precoVendaCentavos, percentualMinimo);
-  const elegivel = saldoConfirmadoCentavos >= meta;
+  const saldoOk = saldoConfirmadoCentavos >= meta;
   const valorFaltante = meta - saldoConfirmadoCentavos;
+
+  let carenciaOk = true;
+  let carenciaAte: Date | undefined;
+  if (dataAdesao != null) {
+    const base = dataAdesao instanceof Date ? dataAdesao : new Date(dataAdesao);
+    carenciaAte = somaMesesCalendario(base, carenciaMeses);
+    // Comparação por dia: carência cumprida quando a data-limite já passou
+    // (ou é hoje). Zeramos as horas dos dois lados.
+    const limiteDia = new Date(
+      carenciaAte.getFullYear(),
+      carenciaAte.getMonth(),
+      carenciaAte.getDate(),
+    );
+    const hojeDia = new Date(
+      hoje.getFullYear(),
+      hoje.getMonth(),
+      hoje.getDate(),
+    );
+    carenciaOk = limiteDia.getTime() <= hojeDia.getTime();
+  }
 
   return {
     metaCentavos: meta,
-    elegivel,
+    saldoOk,
+    carenciaOk,
+    carenciaAte,
+    elegivel: saldoOk && carenciaOk,
     valorFaltanteCentavos: valorFaltante > 0n ? valorFaltante : 0n,
   };
 }

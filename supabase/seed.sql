@@ -63,35 +63,41 @@ values
   ('00000000-0000-0000-0000-0000000000f8', 'Volkswagen', 'T-Cross', 'Comfortline 1.4 TSI', 2020, 2021, 53000, 'Cinza', 'Flex', 'Automático',
    'VWX8Y90', '9BWBH6BF7LP123456', '71234567897', 13200000, 11500000, 'vendido', false, now() - interval '60 days');
 
--- Fotos (capa por veículo).
-insert into public.veiculo_fotos (veiculo_id, url, ordem, capa)
-select id,
-       'https://placehold.co/800x600/png?text=' || replace(marca || '+' || modelo, ' ', '+'),
-       0, true
-from public.veiculos;
+-- Fotos ILUSTRATIVAS (capa por veículo) — Unsplash, até a JJ Motors subir as
+-- fotos reais via Storage. Uma por modelo para as telas não ficarem vazias.
+insert into public.veiculo_fotos (veiculo_id, url, ordem, capa) values
+  ('00000000-0000-0000-0000-0000000000f1', 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=1000&q=75', 0, true),
+  ('00000000-0000-0000-0000-0000000000f2', 'https://images.unsplash.com/photo-1549927681-0b673b8243ab?w=1000&q=75', 0, true),
+  ('00000000-0000-0000-0000-0000000000f3', 'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=1000&q=75', 0, true),
+  ('00000000-0000-0000-0000-0000000000f4', 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1000&q=75', 0, true),
+  ('00000000-0000-0000-0000-0000000000f5', 'https://images.unsplash.com/photo-1550355291-bbee04a92027?w=1000&q=75', 0, true),
+  ('00000000-0000-0000-0000-0000000000f6', 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1000&q=75', 0, true),
+  ('00000000-0000-0000-0000-0000000000f7', 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=1000&q=75', 0, true),
+  ('00000000-0000-0000-0000-0000000000f8', 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1000&q=75', 0, true);
 
 
 -- -----------------------------------------------------------------------------
 -- PLANOS (3, um por cliente)
 -- -----------------------------------------------------------------------------
+-- data_adesao: Ana e Bruno já passaram a carência de 3 meses; Carla NÃO
+-- (aderiu há 1 mês) — cenário de teste para a carência.
 insert into public.planos
-  (id, cliente_id, codigo, status, percentual_minimo, aporte_mensal_previsto_centavos,
-   dia_vencimento, veiculo_alvo_id, data_adesao, observacoes)
+  (id, cliente_id, codigo, status, percentual_minimo, veiculo_alvo_id, data_adesao, observacoes)
 values
   ('00000000-0000-0000-0000-0000000000b1', '00000000-0000-0000-0000-0000000000c1',
-   'CP-2025-0001', 'ativo', 0.500, 300000, 10,
+   'CP-2025-0001', 'ativo', 0.500,
    '00000000-0000-0000-0000-0000000000f3', current_date - interval '9 months',
    'Cliente pontual. Alvo: Onix, mas aberta a outras opções.'),
 
   ('00000000-0000-0000-0000-0000000000b2', '00000000-0000-0000-0000-0000000000c2',
-   'CP-2025-0002', 'ativo', 0.500, 250000, 15,
+   'CP-2025-0002', 'ativo', 0.500,
    '00000000-0000-0000-0000-0000000000f1', current_date - interval '7 months',
-   'Alvo: Gol. Falta R$ 2.500,00 para a elegibilidade.'),
+   'Alvo: Gol. Falta R$ 2.500,00 para cobrir a entrada.'),
 
   ('00000000-0000-0000-0000-0000000000b3', '00000000-0000-0000-0000-0000000000c3',
-   'CP-2026-0003', 'ativo', 0.500, 200000, 5,
+   'CP-2026-0003', 'ativo', 0.500,
    null, current_date - interval '1 month',
-   'Adesão recente.');
+   'Adesão recente — ainda na carência de 3 meses.');
 
 
 -- -----------------------------------------------------------------------------
@@ -147,12 +153,19 @@ values
 -- Bruno confirmado = 7*250000 - 100000 = 1.650.000  -> meta Gol 1.900.000 -> falta 250.000 (R$ 2.500,00)
 
 -- ---- Carla (plano b3) -----------------------------------------------------
+-- Cenário: aderiu há 1 mês, aportou 2 valores grandes e SOLTOS (nada de
+-- mensal fixo) — já tem saldo pra cobrir a entrada de vários carros, mas
+-- está na CARÊNCIA de 3 meses. Vê "Saldo pronto · liberam em DD/MM".
 insert into public.aportes
   (id, plano_id, valor_centavos, tipo, status, meio_pagamento, data_competencia, confirmado_por, confirmado_em, criado_em)
 values
-  ('00000000-0000-0000-0000-00000000a301', '00000000-0000-0000-0000-0000000000b3', 300000, 'aporte', 'confirmado', 'pix', current_date - interval '20 days', '00000000-0000-0000-0000-0000000000a1', now() - interval '20 days', now() - interval '20 days'),
-  ('00000000-0000-0000-0000-00000000a302', '00000000-0000-0000-0000-0000000000b3', 200000, 'aporte', 'pendente',   'pix', current_date,                      null,                                   null,                       now() - interval '3 days');
--- Carla confirmado = 300.000
+  ('00000000-0000-0000-0000-00000000a301', '00000000-0000-0000-0000-0000000000b3', 1500000, 'aporte', 'confirmado', 'pix',      current_date - interval '20 days', '00000000-0000-0000-0000-0000000000a1', now() - interval '20 days', now() - interval '20 days'),
+  ('00000000-0000-0000-0000-00000000a302', '00000000-0000-0000-0000-0000000000b3', 1200000, 'aporte', 'confirmado', 'dinheiro', current_date - interval '5 days',  '00000000-0000-0000-0000-0000000000a1', now() - interval '5 days',  now() - interval '5 days'),
+  ('00000000-0000-0000-0000-00000000a303', '00000000-0000-0000-0000-0000000000b3',  400000, 'aporte', 'pendente',   'pix',      current_date,                      null,                                   null,                       now() - interval '2 days');
+-- (o valor de a301 e a302 é o cenário oficial; num banco já semeado o ledger
+--  é append-only, então ajustes viram lançamentos extras, não edições.)
+-- Carla confirmado = 2.700.000 -> cobre Gol (meta 1.9M) e Argo (2.25M), mas
+-- carência só termina 3 meses após a adesão.
 
 
 -- -----------------------------------------------------------------------------

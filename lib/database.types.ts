@@ -556,12 +556,10 @@ export type Database = {
       }
       planos: {
         Row: {
-          aporte_mensal_previsto_centavos: number
           cliente_id: string
           codigo: string
           criado_em: string
           data_adesao: string
-          dia_vencimento: number
           id: string
           observacoes: string | null
           percentual_minimo: number
@@ -571,12 +569,10 @@ export type Database = {
           vendedor_id: string | null
         }
         Insert: {
-          aporte_mensal_previsto_centavos?: number
           cliente_id: string
           codigo: string
           criado_em?: string
           data_adesao?: string
-          dia_vencimento?: number
           id?: string
           observacoes?: string | null
           percentual_minimo?: number
@@ -586,12 +582,10 @@ export type Database = {
           vendedor_id?: string | null
         }
         Update: {
-          aporte_mensal_previsto_centavos?: number
           cliente_id?: string
           codigo?: string
           criado_em?: string
           data_adesao?: string
-          dia_vencimento?: number
           id?: string
           observacoes?: string | null
           percentual_minimo?: number
@@ -1045,6 +1039,8 @@ export type Database = {
     Views: {
       vw_elegibilidade: {
         Row: {
+          carencia_ate: string | null
+          carencia_ok: boolean | null
           cliente_id: string | null
           elegivel: boolean | null
           marca: string | null
@@ -1055,6 +1051,7 @@ export type Database = {
           plano_id: string | null
           preco_venda_centavos: number | null
           saldo_confirmado_centavos: number | null
+          saldo_ok: boolean | null
           valor_faltante_centavos: number | null
           veiculo_id: string | null
           versao: string | null
@@ -1322,6 +1319,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      meses_carencia: { Args: never; Returns: number }
       meta_centavos: {
         Args: { percentual_minimo: number; preco_venda_centavos: number }
         Returns: number

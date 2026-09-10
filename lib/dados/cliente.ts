@@ -48,6 +48,9 @@ function normalizarElegibilidade(row: VwElegibilidade) {
     preco_venda_centavos: row.preco_venda_centavos!,
     saldo_confirmado_centavos: row.saldo_confirmado_centavos ?? 0,
     meta_centavos: row.meta_centavos!,
+    saldo_ok: row.saldo_ok ?? false,
+    carencia_ok: row.carencia_ok ?? false,
+    carencia_ate: row.carencia_ate!,
     elegivel: row.elegivel ?? false,
     valor_faltante_centavos: row.valor_faltante_centavos ?? 0,
   };

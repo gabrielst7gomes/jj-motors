@@ -73,27 +73,11 @@ export function NovoClienteForm({ vendedores }: { vendedores: Vendedor[] }) {
               defaultValue="0.5"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="aporteMensalPrevisto">Aporte mensal previsto</Label>
-            <Input
-              id="aporteMensalPrevisto"
-              name="aporteMensalPrevisto"
-              placeholder="R$ 0,00"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="diaVencimento">Dia de vencimento</Label>
-            <Input
-              id="diaVencimento"
-              name="diaVencimento"
-              type="number"
-              min="1"
-              max="28"
-              defaultValue="10"
-            />
-          </div>
         </div>
+        <p className="txt-micro text-cinza-texto">
+          Os aportes são livres — o cliente aporta qualquer valor, em qualquer
+          data. A elegibilidade para comprar libera 3 meses após a adesão.
+        </p>
         <div className="space-y-2">
           <Label htmlFor="vendedorId">Vendedor responsável (opcional)</Label>
           <Select id="vendedorId" name="vendedorId">

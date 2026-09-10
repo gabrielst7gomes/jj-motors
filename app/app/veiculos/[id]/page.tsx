@@ -2,6 +2,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { Dinheiro } from "@/components/dinheiro";
+import { formatarData } from "@/lib/carencia";
 import {
   getFotosVeiculo,
   getMeuPlanoAtivo,
@@ -32,11 +33,13 @@ export default async function DetalheVeiculoPage({
   const minhaElegibilidade = elegibilidade.find((e) => e.veiculo_id === id);
 
   const preco = BigInt(veiculo.preco_venda_centavos);
-  const entrada = minhaElegibilidade?.elegivel
-    ? BigInt(minhaElegibilidade.saldo_confirmado_centavos)
+  const saldoOk = minhaElegibilidade?.saldo_ok ?? false;
+  const elegivel = minhaElegibilidade?.elegivel ?? false;
+  const emCarencia = saldoOk && !elegivel;
+  const entrada = saldoOk
+    ? BigInt(minhaElegibilidade!.saldo_confirmado_centavos)
     : 0n;
   const aFinanciar = preco - entrada > 0n ? preco - entrada : 0n;
-  const elegivel = minhaElegibilidade?.elegivel ?? false;
 
   const capa = fotos.find((f) => f.capa) ?? fotos[0];
 
@@ -105,7 +108,7 @@ export default async function DetalheVeiculoPage({
           />
         </div>
 
-        {elegivel && (
+        {saldoOk && (
           <div className="mostrador grid grid-cols-2 divide-x divide-white/10 p-0">
             <div className="p-4">
               <p className="rotulo-campo">Entrada · seu saldo</p>
@@ -126,7 +129,21 @@ export default async function DetalheVeiculoPage({
           </div>
         )}
 
-        {minhaElegibilidade && !minhaElegibilidade.elegivel && (
+        {emCarencia && minhaElegibilidade?.carencia_ate && (
+          <div className="rounded-sm border border-ciano/25 bg-ciano-fundo p-3.5">
+            <p className="txt-pequeno text-ciano">
+              Seu saldo já cobre a entrada. A compra libera após 3 meses de
+              Compra Programada —{" "}
+              <b className="font-semibold">
+                a partir de {formatarData(minhaElegibilidade.carencia_ate)}
+              </b>
+              . Você pode abrir negociação agora para adiantar as condições
+              com um consultor.
+            </p>
+          </div>
+        )}
+
+        {minhaElegibilidade && !minhaElegibilidade.saldo_ok && (
           <div className="rounded-sm border border-ambar/25 bg-ambar-fundo p-3.5">
             <p className="txt-pequeno text-ambar">
               Faltam{" "}
@@ -137,14 +154,14 @@ export default async function DetalheVeiculoPage({
                   tamanhoCentavos={false}
                 />
               </b>{" "}
-              no seu saldo para ficar elegível — mas você já pode abrir
+              no seu saldo para cobrir a entrada — mas você já pode abrir
               negociação e acertar as condições com um consultor.
             </p>
           </div>
         )}
 
         {plano && veiculo.status !== "vendido" && (
-          <SimularParcelas veiculoId={id} elegivel={elegivel} />
+          <SimularParcelas veiculoId={id} elegivel={saldoOk} />
         )}
 
         <div className="mostrador p-5">

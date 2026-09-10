@@ -78,9 +78,11 @@ export default async function EstoqueCompletoPage({
               km={v.km}
               precoVendaCentavos={BigInt(v.preco_venda_centavos)}
               capaUrl={capas.get(v.id)}
+              saldoOk={e?.saldo_ok}
               elegivel={e?.elegivel}
+              carenciaAte={e?.carencia_ate}
               valorFaltanteCentavos={
-                e && !e.elegivel
+                e && !e.saldo_ok
                   ? BigInt(e.valor_faltante_centavos)
                   : undefined
               }

@@ -5,6 +5,7 @@ import { BarraProgresso } from "@/components/barra-progresso";
 import { BlocoVeredito } from "@/components/bloco-veredito";
 import { Dinheiro } from "@/components/dinheiro";
 import { Button } from "@/components/ui/button";
+import { formatarData } from "@/lib/carencia";
 import {
   getCapasVeiculos,
   getMeuExtrato,
@@ -12,15 +13,6 @@ import {
   getMeuSaldo,
   getMinhaElegibilidade,
 } from "@/lib/dados/cliente";
-
-function proximoVencimento(diaVencimento: number): Date {
-  const hoje = new Date();
-  const candidato = new Date(hoje.getFullYear(), hoje.getMonth(), diaVencimento);
-  if (candidato < hoje) {
-    candidato.setMonth(candidato.getMonth() + 1);
-  }
-  return candidato;
-}
 
 const LABEL_STATUS_APORTE = {
   confirmado: "Confirmado",
@@ -50,32 +42,50 @@ export default async function DashboardClientePage() {
   ]);
 
   const saldoConfirmado = BigInt(saldo?.saldo_confirmado_centavos ?? 0);
-  const veiculosElegiveis = elegibilidade.filter((v) => v.elegivel);
-  const capas = await getCapasVeiculos(
-    veiculosElegiveis.map((v) => v.veiculo_id),
-  );
 
-  const proximoObjetivo = elegibilidade.find((v) => !v.elegivel);
+  // Veículos cujo SALDO já cobre a entrada — inclui os que ainda estão na
+  // carência (mostrados com "disponível a partir de DD/MM").
+  const comSaldo = elegibilidade.filter((v) => v.saldo_ok);
+  const capas = await getCapasVeiculos(comSaldo.map((v) => v.veiculo_id));
 
-  const vencimento = proximoVencimento(plano.dia_vencimento);
-  const proximoAporte = extrato.find((a) => a.status === "pendente");
+  // Próximo objetivo: veículo mais barato cujo saldo ainda NÃO cobre a meta.
+  const proximoObjetivo = elegibilidade.find((v) => !v.saldo_ok);
+
+  const carenciaOk = elegibilidade[0]?.carencia_ok ?? true;
+  const carenciaAte = elegibilidade[0]?.carencia_ate ?? null;
+  const temLiberado = comSaldo.some((v) => v.elegivel);
+
   const ultimosAportes = extrato.slice(0, 3);
-  const temVeredito = veiculosElegiveis.length > 0;
 
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Cabeçalho de painel */}
       <div className="flex items-baseline justify-between gap-3 border-b border-white/10 pb-3">
         <h1 className="txt-titulo text-branco">
-          {temVeredito ? "Você está liberado" : "Em rota"}
+          {temLiberado
+            ? "Você está liberado"
+            : comSaldo.length > 0
+              ? "Saldo pronto"
+              : "Em rota"}
         </h1>
         <p className="shrink-0 rotulo-campo">Plano {plano.codigo}</p>
       </div>
 
-      {/* INSTRUMENTO DOMINANTE — veredito OU rota */}
-      {temVeredito ? (
+      {/* Faixa de carência — só quando ainda não passou e o cliente já tem saldo */}
+      {!carenciaOk && comSaldo.length === 0 && carenciaAte && (
+        <div className="rounded-sm border border-ciano/25 bg-ciano-fundo p-3.5">
+          <p className="txt-pequeno text-ciano">
+            A compra de veículos libera após 3 meses de Compra Programada —{" "}
+            <b className="font-semibold">a partir de {formatarData(carenciaAte)}</b>
+            . Até lá, continue aportando (qualquer dia, qualquer valor).
+          </p>
+        </div>
+      )}
+
+      {/* INSTRUMENTO DOMINANTE */}
+      {comSaldo.length > 0 ? (
         <BlocoVeredito
-          veiculos={veiculosElegiveis.map((v) => ({
+          veiculos={comSaldo.map((v) => ({
             veiculo_id: v.veiculo_id,
             marca: v.marca,
             modelo: v.modelo,
@@ -83,6 +93,8 @@ export default async function DashboardClientePage() {
             preco_venda_centavos: BigInt(v.preco_venda_centavos),
             saldo_confirmado_centavos: BigInt(v.saldo_confirmado_centavos),
             capaUrl: capas.get(v.veiculo_id),
+            liberado: v.elegivel,
+            carenciaAte: v.carencia_ate,
           }))}
         />
       ) : proximoObjetivo ? (
@@ -93,13 +105,11 @@ export default async function DashboardClientePage() {
             veiculoFicha={proximoObjetivo.versao ?? ""}
             precoVendaCentavos={BigInt(proximoObjetivo.preco_venda_centavos)}
             saldoConfirmadoCentavos={saldoConfirmado}
-            metaCentavos={BigInt(proximoObjetivo.meta_centavos)}
-            valorFaltanteCentavos={BigInt(
-              proximoObjetivo.valor_faltante_centavos,
-            )}
-            aporteMensalPrevistoCentavos={BigInt(
-              plano.aporte_mensal_previsto_centavos,
-            )}
+            valorFaltanteCentavos={BigInt(proximoObjetivo.valor_faltante_centavos)}
+            aportesConfirmados={extrato
+              .filter((a) => a.status === "confirmado")
+              .map((a) => BigInt(a.valor_centavos))}
+            dataAdesao={plano.data_adesao}
           />
           <Button asChild className="w-full md:hidden">
             <Link href="/app/estoque">Ver estoque completo</Link>
@@ -108,47 +118,29 @@ export default async function DashboardClientePage() {
       ) : (
         <div className="mostrador p-6">
           <p className="txt-corpo text-cinza-texto">
-            Você já é elegível para todo o estoque disponível.
+            Seu saldo já cobre todo o estoque disponível.
           </p>
         </div>
       )}
 
-      {/* TELEMETRIA — dois mostradores pequenos + últimos lançamentos */}
-      <div className="grid grid-cols-2 gap-3 md:gap-4">
-        <div className="mostrador p-4 md:p-5">
-          <p className="rotulo-instrumento">Saldo acumulado</p>
-          <Dinheiro
-            centavos={saldoConfirmado}
-            className="leitura leitura-md mt-2 block text-branco"
-            tamanhoCentavos={false}
-          />
-          {(saldo?.saldo_pendente_centavos ?? 0) > 0 && (
-            <p className="mt-1.5 txt-micro text-cinza-texto">
-              +{" "}
-              <Dinheiro
-                centavos={BigInt(saldo?.saldo_pendente_centavos ?? 0)}
-                className="inline text-cinza-texto"
-                tamanhoCentavos={false}
-              />{" "}
-              a confirmar
-            </p>
-          )}
-        </div>
-        <div className="mostrador p-4 md:p-5">
-          <p className="rotulo-instrumento">Próximo aporte</p>
-          <p className="leitura leitura-md mt-2 text-branco">
-            {vencimento.toLocaleDateString("pt-BR", {
-              day: "2-digit",
-              month: "2-digit",
-            })}
+      {/* TELEMETRIA */}
+      <div className="mostrador p-4 md:p-5">
+        <p className="rotulo-instrumento">Saldo acumulado</p>
+        <Dinheiro
+          centavos={saldoConfirmado}
+          className="leitura leitura-lg mt-2 block text-branco"
+        />
+        {(saldo?.saldo_pendente_centavos ?? 0) > 0 && (
+          <p className="mt-1.5 txt-pequeno text-cinza-texto">
+            +{" "}
+            <Dinheiro
+              centavos={BigInt(saldo?.saldo_pendente_centavos ?? 0)}
+              className="inline text-cinza-texto"
+              tamanhoCentavos={false}
+            />{" "}
+            a confirmar
           </p>
-          <p className="mt-1.5 txt-micro text-cinza-texto">
-            {vencimento.toLocaleDateString("pt-BR", { month: "long" })}
-            {proximoAporte && (
-              <span className="ml-1.5 text-ambar">· pendente</span>
-            )}
-          </p>
-        </div>
+        )}
       </div>
 
       {/* Últimos lançamentos */}
@@ -165,7 +157,8 @@ export default async function DashboardClientePage() {
         </div>
         {ultimosAportes.length === 0 ? (
           <p className="mt-3 txt-pequeno text-cinza-inativo">
-            Nenhum aporte lançado ainda.
+            Nenhum aporte lançado ainda. Você pode aportar qualquer valor,
+            qualquer dia.
           </p>
         ) : (
           <ol className="mt-2 divide-y divide-white/10">
