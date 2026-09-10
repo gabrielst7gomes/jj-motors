@@ -4,6 +4,14 @@
 -- Todas com security_invoker = true: a view roda com as permissões de quem
 -- consulta, respeitando a RLS das tabelas base. Isso é essencial para
 -- vw_saldo_cliente / vw_elegibilidade não vazarem dados entre clientes.
+--
+-- CORREÇÃO POSTERIOR (ver migration 20260101001100_fix_view_veiculos_publico):
+-- vw_veiculos_publico definida abaixo com security_invoker = true tem esse
+-- flag revertido para false naquela migration. Motivo: a tabela `veiculos`
+-- não tem policy de SELECT para cliente, então com security_invoker = true a
+-- view ficava sempre vazia para cliente. vw_saldo_cliente e vw_elegibilidade
+-- não são afetadas — partem de tabelas que TÊM policy de cliente — e
+-- continuam com security_invoker = true.
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------

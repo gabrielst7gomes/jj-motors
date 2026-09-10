@@ -57,9 +57,17 @@ begin
   select count(*) into n from public.vw_saldo_cliente where cliente_id <> '00000000-0000-0000-0000-0000000000c1';
   assert n = 0, 'FALHA: vw_saldo_cliente vazou saldo de outro cliente';
 
-  -- 8) vw_elegibilidade só devolve linhas de Ana.
+  -- 8) vw_elegibilidade só devolve linhas de Ana, e devolve TODAS as dela
+  -- (regressão do bug: security_invoker=true fazia o cross join com
+  -- `veiculos` zerar para cliente — ver migration 20260101001100).
   select count(*) into n from public.vw_elegibilidade where cliente_id <> '00000000-0000-0000-0000-0000000000c1';
   assert n = 0, 'FALHA: vw_elegibilidade vazou elegibilidade de outro cliente';
+
+  select count(*) into n from public.vw_elegibilidade where cliente_id = '00000000-0000-0000-0000-0000000000c1';
+  assert n = 7, format('FALHA: vw_elegibilidade deveria ter 7 linhas para Ana (7 veículos disponíveis), teve %s', n);
+
+  select count(*) into n from public.vw_elegibilidade where cliente_id = '00000000-0000-0000-0000-0000000000c1' and elegivel;
+  assert n = 2, format('FALHA: Ana deveria ser elegível para 2 veículos (Gol e Argo), o teste viu %s', n);
 
   -- 9) Ana NÃO acessa a tabela `veiculos` diretamente (sem policy para cliente).
   select count(*) into n from public.veiculos;
@@ -68,6 +76,12 @@ begin
   -- 10) Ana acessa vw_veiculos_publico (só disponivel/reservado).
   select count(*) into n from public.vw_veiculos_publico;
   assert n = 7, format('FALHA: vw_veiculos_publico devolveu %s (esperado 7 = 8 - 1 vendido)', n);
+
+  -- 10b) Ana acessa veiculo_fotos dos veículos públicos (regressão do mesmo
+  -- bug: a policy antiga usava uma subquery em `veiculos` sujeita à RLS de
+  -- `veiculos`, que nega tudo para cliente — ver migration 20260101001100).
+  select count(*) into n from public.veiculo_fotos;
+  assert n = 7, format('FALHA: veiculo_fotos devolveu %s (esperado 7, uma por veículo disponível)', n);
 
   -- 11) Ana NÃO consegue INSERIR aporte (cliente não escreve).
   begin
@@ -90,7 +104,56 @@ begin
       null; -- também aceitável
   end;
 
-  raise notice 'OK: todas as 12 asserções de isolamento RLS passaram.';
+  -- 13) Ana NÃO vê preferências de veículo (CRM) de Bruno.
+  select count(*) into n from public.preferencias_veiculo
+    where plano_id = '00000000-0000-0000-0000-0000000000b2';
+  assert n = 0, format('FALHA: Ana viu %s preferência(s) de Bruno', n);
+
+  -- 14) Ana NÃO consegue inserir preferência direto na tabela (só via RPC
+  -- definir_preferencia_veiculo, que é SECURITY DEFINER).
+  begin
+    insert into public.preferencias_veiculo (plano_id, marca, modelo)
+    values ('00000000-0000-0000-0000-0000000000b1', 'Toyota', 'Corolla');
+    assert false, 'FALHA: Ana inseriu preferência direto na tabela (RLS deveria barrar)';
+  exception
+    when insufficient_privilege then
+      null; -- esperado
+  end;
+
+  -- 15) A RPC definir_preferencia_veiculo (texto livre) funciona para Ana e
+  -- ela consegue ler o que gravou.
+  perform public.definir_preferencia_veiculo(
+    p_marca => 'Peugeot', p_modelo => '208', p_valor_meta_centavos => 8000000
+  );
+  select count(*) into n from public.preferencias_veiculo
+    where plano_id = '00000000-0000-0000-0000-0000000000b1' and marca = 'Peugeot' and modelo = '208';
+  assert n = 1, format('FALHA: preferência livre gravada via RPC não apareceu para Ana, viu %s', n);
+
+  -- 16) Ana lê o catálogo de modelos ativos (precisa para escolher).
+  select count(*) into n from public.catalogo_modelos;
+  assert n >= 1, 'FALHA: Ana não vê nenhum item do catálogo de modelos';
+
+  -- 17) Ana NÃO consegue inserir no catálogo (só staff/vendedor c/ estoque.editar).
+  begin
+    insert into public.catalogo_modelos (marca, modelo) values ('Fiat', 'Uno');
+    assert false, 'FALHA: Ana inseriu no catálogo (RLS deveria barrar)';
+  exception
+    when insufficient_privilege then
+      null; -- esperado
+  end;
+
+  -- 18) A RPC aceita escolha do catálogo e copia marca/modelo/anos dele.
+  declare
+    v_cat_id uuid;
+    v_pref public.preferencias_veiculo%rowtype;
+  begin
+    select id into v_cat_id from public.catalogo_modelos where ativo order by marca, modelo limit 1;
+    v_pref := public.definir_preferencia_veiculo(p_catalogo_modelo_id => v_cat_id);
+    assert v_pref.catalogo_modelo_id = v_cat_id,
+      'FALHA: preferência do catálogo não guardou o vínculo';
+  end;
+
+  raise notice 'OK: todas as 18 asserções de isolamento RLS passaram.';
 end $$;
 
 rollback;

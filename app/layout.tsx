@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Archivo } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+/**
+ * Archivo é uma fonte de eixo variável (peso 100–900, largura 62–125%).
+ * Carregamos uma família só e usamos `font-stretch` em CSS para acessar a
+ * largura expandida — é a mesma técnica do mockup de referência
+ * (`font-stretch: 118%` sobre a família normal), evitando duas famílias
+ * separadas com métricas potencialmente diferentes. Ver design/IDENTIDADE.md
+ * seção 4.1: "Archivo em duas larguras", não "Archivo + Archivo Expanded".
+ */
+const archivo = Archivo({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-archivo",
   display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -27,9 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
-      >
+      <body className={`${archivo.variable} font-sans antialiased`}>
         {children}
       </body>
     </html>

@@ -2,77 +2,258 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =============================================================================
+ * Tokens de identidade — JJ Motors: Compra Programada
+ * Fonte da verdade: design/IDENTIDADE.md (seção V2). Não adicionar cor,
+ * tamanho ou raio fora do que está documentado lá — atualize o documento
+ * primeiro.
+ * ========================================================================== */
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    /* Paleta v2 — base em camadas, não preto chapado (ver IDENTIDADE.md V2.1) */
+    --base: 213 41% 6%; /* #0A0E14 — canvas */
+    --superficie: 216 27% 11%; /* #131822 — cards, sidebar, seções */
+    --elevado: 220 24% 16%; /* #1C2230 — inputs, popovers, hover */
 
-    --sucesso: 142 71% 45%;
-    --alerta: 38 92% 50%;
-    --info: 217 91% 60%;
+    --vermelho: 2 100% 44%; /* #E10600 */
+    --vermelho-fundo: 0 45% 12%; /* #2A0F0F */
+    --azul-profundo: 217 79% 40%; /* #1550B8 */
+    --azul-claro: 217 100% 68%; /* #5B9AFF */
+    --branco: 0 0% 100%;
+    --cinza-texto: 216 15% 65%; /* #9AA3B2 */
+    --cinza-inativo: 220 12% 42%; /* #5C6577 */
+    --ambar: 40 91% 48%; /* #F2A900 */
+    --vinho: 350 68% 29%; /* #7A1420 — preenchimento de área grande */
+    --vinho-contorno: 344 60% 51%; /* #C23350 — traço de contorno destrutivo */
+
+    /* Hairlines — divisor interno (tabela, lista), não mais o único recurso
+     * de hierarquia — ver V2.2. */
+    --linha: 0 0% 100%;
+    --linha-alpha: 0.10;
+    --linha-forte-alpha: 0.18;
+
+    /* Mapeamento para os tokens semânticos consumidos por shadcn/ui e pelos
+     * componentes em components/ui/. Mantido em HSL "H S% L%" (sem hsl())
+     * para compor com hsl(var(--x) / <alpha>) quando precisar de opacidade. */
+    --background: var(--base);
+    --foreground: var(--branco);
+
+    --card: var(--superficie);
+    --card-foreground: var(--branco);
+
+    --popover: var(--elevado);
+    --popover-foreground: var(--branco);
+
+    --primary: var(--vermelho);
+    --primary-foreground: var(--branco);
+
+    --secondary: var(--azul-profundo);
+    --secondary-foreground: var(--branco);
+
+    --muted: var(--elevado);
+    --muted-foreground: var(--cinza-texto);
+
+    --accent: var(--azul-profundo);
+    --accent-foreground: var(--branco);
+
+    --destructive: var(--vinho-contorno);
+    --destructive-foreground: var(--branco);
+
+    --border: 0 0% 100%; /* usado sempre com alpha, ver .hairline */
+    --input: var(--elevado);
+    --ring: var(--azul-claro);
+
+    /* Raio — v2 reintroduz border-radius em escala (V2.2). */
+    --radius-sm: 8px; /* controles pequenos: badge, input, botão */
+    --radius: 16px; /* cards e blocos de conteúdo */
+    --radius-pill: 9999px; /* só contadores */
+
+    /* Fontes — uma família, duas larguras via font-stretch */
+    --font-sans: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
+
+    /* Curvas de easing — as do CSS nativo (ease/ease-out) são fracas demais
+     * para dar a sensação de resposta imediata que uma interação de UI
+     * precisa. Usar sempre estas, nunca ease-in em elemento de interface
+     * (ease-in atrasa o movimento no exato momento em que o usuário está
+     * olhando). Toda animação de UI fica abaixo de 300ms. */
+    --ease-out-forte: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out-forte: cubic-bezier(0.77, 0, 0.175, 1);
+
+    /* Sombras — elevação real além da cor de camada (V2.2). Offset + blur
+     * reais, nunca halo de opacidade zero-offset. */
+    --sombra-card: 0 1px 2px hsl(0 0% 0% / 0.24), 0 8px 24px -8px hsl(0 0% 0% / 0.4);
+    --sombra-elevado: 0 2px 4px hsl(0 0% 0% / 0.3), 0 12px 32px -8px hsl(0 0% 0% / 0.5);
+    --sombra-vermelho: 0 4px 16px -4px hsl(var(--vermelho) / 0.45);
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+  /* A identidade é escura por definição — não há variante clara do produto.
+   * Não redefinimos nada sob prefers-color-scheme nem [data-theme="light"]:
+   * o app sempre usa a paleta acima, em qualquer preferência do sistema. */
 
-    --sucesso: 142 71% 45%;
-    --alerta: 38 92% 50%;
-    --info: 217 91% 60%;
-  }
-}
-
-@layer base {
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
+
+  html {
+    color-scheme: dark;
   }
 
-  /* Todo valor monetário em tabela usa dígitos de largura fixa e alinha à direita. */
+  body {
+    @apply bg-background text-foreground;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    /* Gradiente ambiente sutil — V2.2: gradiente autorizado como recurso
+     * ativo, não só na barra de progresso. Fixo (não rola com o conteúdo),
+     * bem discreto, só para a base não ler como um chapado uniforme. */
+    background-image:
+      radial-gradient(ellipse 1200px 600px at 15% -10%, hsl(var(--azul-profundo) / 0.12), transparent 60%),
+      radial-gradient(ellipse 900px 500px at 100% 0%, hsl(var(--vermelho) / 0.06), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--azul-claro));
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Superfícies de navegador que nenhum componente desenha, mas que ainda
+   * carregam a identidade — seleção de texto e scrollbar. */
+  ::selection {
+    background: hsl(var(--vermelho) / 0.35);
+    color: hsl(var(--branco));
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--base));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--linha) / var(--linha-forte-alpha));
+    border: 2px solid hsl(var(--base));
+    border-radius: var(--radius-sm);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--linha) / 0.3);
+  }
+
+  * {
+    scrollbar-color: hsl(var(--linha) / var(--linha-forte-alpha)) hsl(var(--base));
+    scrollbar-width: thin;
+  }
+}
+
+@layer utilities {
+  /* Hairline — divisor interno (tabela, lista). */
+  .hairline {
+    border-color: hsl(var(--linha) / var(--linha-alpha));
+  }
+  .hairline-forte {
+    border-color: hsl(var(--linha) / var(--linha-forte-alpha));
+  }
+
+  /* Largura expandida via font-stretch sobre a mesma família variável.
+   * Usada em display/titulo e em qualquer número grande. */
+  .fonte-expandida {
+    font-stretch: 115%;
+    letter-spacing: -0.01em;
+  }
+
+  /* Escala tipográfica fixa. Seis tamanhos, nenhum fora daqui. Pesos
+   * ajustados na v2: um degrau mais leves que a v1 para reduzir o efeito
+   * "grito" (feedback do usuário sobre a v1). */
+  .txt-display {
+    font-size: 40px;
+    line-height: 46px;
+    font-weight: 600;
+    font-stretch: 120%;
+    letter-spacing: -0.02em;
+  }
+  .txt-titulo {
+    font-size: 24px;
+    line-height: 31px;
+    font-weight: 600;
+    font-stretch: 112%;
+    letter-spacing: -0.01em;
+  }
+  .txt-subtitulo {
+    font-size: 18px;
+    line-height: 27px;
+    font-weight: 600;
+  }
+  .txt-corpo {
+    font-size: 15px;
+    line-height: 23px;
+    font-weight: 400;
+  }
+  .txt-pequeno {
+    font-size: 13px;
+    line-height: 19px;
+    font-weight: 400;
+  }
+  .txt-micro {
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 500;
+  }
+
+  /* Valor monetário — tabular-nums sempre, centavos menores. */
   .valor-monetario {
     font-variant-numeric: tabular-nums;
     text-align: right;
     white-space: nowrap;
   }
+  .valor-monetario .centavos {
+    font-size: 0.55em;
+    color: hsl(var(--cinza-texto));
+    font-weight: 600;
+  }
 
   table.tabela-densa {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Pill de contagem — border-radius total, reservado a contadores. */
+  .pill-contagem {
+    background: hsl(var(--vermelho));
+    color: hsl(var(--branco));
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 8px;
+    border-radius: var(--radius-pill);
+  }
+
+  /* Gradientes de marca — V2.2: recurso ativo, sempre dentro da mesma
+   * família de cor (nunca multicolor arco-íris), contraste verificado nas
+   * duas paradas. */
+  .gradiente-vermelho {
+    background-image: linear-gradient(135deg, hsl(2 100% 48%), hsl(2 90% 38%));
+  }
+  .gradiente-superficie {
+    background-image: linear-gradient(180deg, hsl(var(--superficie)), hsl(var(--base)));
+  }
+}
+
+/* Drawer de navegação mobile (shell-admin). Entra deslizando da esquerda. */
+@keyframes deslizar-drawer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

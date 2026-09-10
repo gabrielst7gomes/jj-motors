@@ -102,7 +102,8 @@ Todos com a senha definida em `SEED_USER_PASSWORD` (default `senha123`):
 | cliente | `cliente.bruno@jjmotors.local` | **Bruno** — falta R$ 2.500,00 para 1 veículo |
 | cliente | `cliente.carla@jjmotors.local` | **Carla** — acabou de aderir |
 
-O seed cria 8 veículos (7 disponíveis + 1 vendido) e ~20 lançamentos no ledger.
+O seed cria 8 veículos (7 disponíveis + 1 vendido), ~20 lançamentos no ledger e
+15 modelos no catálogo de preferências (`catalogo_modelos`).
 
 ---
 
@@ -191,6 +192,14 @@ docs/
   Só `confirmado` entra no saldo. Correção = `estorno` negativo.
 - **`veiculos`** + `veiculo_fotos` + `veiculo_precos_historico` — estoque.
 - **`reservas`** + `propostas` — funil de aquisição.
+- **`catalogo_modelos`** — modelos pré-fixados (marca/modelo + faixa de anos),
+  gerenciados no `/admin`. O cliente escolhe daqui (ou digita "outro") ao
+  registrar o carro desejado.
+- **`preferencias_veiculo`** — CRM do desejo do cliente. Quando um veículo com
+  marca/modelo casando (ano na faixa) entra no estoque, dispara notificação
+  `preferencia_disponivel` **mesmo sem o cliente ter os 50%** — ele pode
+  antecipar aportes ou negociar entrada. Não duplica o aviso se o cliente já
+  é elegível (aí recebe `novo_elegivel`).
 - **`notificacoes`** — fila e histórico, com `UNIQUE (cliente_id, veiculo_id, tipo)`.
 - **`audit_log`** — trilha de ações sensíveis.
 - **`configuracoes`** — parâmetros globais (`percentual_padrao`, `horas_reserva`,
@@ -206,7 +215,10 @@ psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls.test.sql
 ```
 
 Autentica como a cliente Ana e verifica que ela **não** lê nada do cliente Bruno,
-não acessa a tabela `veiculos` diretamente e não consegue inserir aportes.
+não acessa a tabela `veiculos` diretamente, não insere aportes nem preferências
+direto na tabela (só via RPC), lê o catálogo mas não o edita, e que a RPC
+`definir_preferencia_veiculo` grava tanto texto livre quanto item do catálogo.
+18 asserções.
 
 ---
 

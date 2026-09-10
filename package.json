@@ -14,13 +14,15 @@
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
-    "db:seed-auth": "tsx scripts/seed-auth.ts",
+    "db:seed-auth": "tsx --env-file=.env scripts/seed-auth.ts",
     "db:types": "supabase gen types typescript --local > lib/database.types.ts",
     "setup": "npm install && supabase start && supabase db reset && npm run db:seed-auth"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
-    "@supabase/ssr": "^0.5.2",
+    "@radix-ui/react-label": "^2.1.1",
+    "@radix-ui/react-slot": "^1.1.1",
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.47.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

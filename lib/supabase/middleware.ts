@@ -5,13 +5,19 @@ import type { Database } from "@/lib/database.types";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
+const ROTAS_PUBLICAS = ["/", "/login"];
+
 /**
- * Atualiza a sessão do usuário a cada requisição e faz o roteamento por role.
+ * Atualiza a sessão do usuário a cada requisição e aplica o roteamento por
+ * papel (regra da Fase 3):
+ *   - Sem sessão tentando acessar /app ou /admin -> /login
+ *   - Cliente tentando acessar /admin -> /app (acesso cruzado negado)
+ *   - Staff (admin/operador) ou vendedor tentando acessar /app -> /admin
+ *   - Autenticado acessando /login -> /pos-login (que decide o destino certo)
  *
- * Nesta fase (1) apenas mantém a sessão viva e disponibiliza o padrão. A
- * proteção de rota e o redirect por role entram na Fase 3, onde este arquivo
- * será estendido para ler `profiles.role` e barrar acesso cruzado entre
- * `/app` (cliente) e `/admin` (staff).
+ * 'vendedor' acessa /admin como staff (visão restrita pelas permissões do seu
+ * cargo, aplicada tela a tela e via RLS — não no middleware, que só decide
+ * qual ÁREA o papel acessa).
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -38,7 +44,58 @@ export async function updateSession(request: NextRequest) {
   );
 
   // IMPORTANTE: não colocar lógica entre createServerClient e getUser().
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { pathname } = request.nextUrl;
+  const ehRotaCliente = pathname === "/app" || pathname.startsWith("/app/");
+  const ehRotaAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
+
+  if (!user) {
+    if (ehRotaCliente || ehRotaAdmin) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+    return supabaseResponse;
+  }
+
+  // Autenticado. Resolve o papel só quando a rota depende disso, para não
+  // pagar uma consulta extra em toda requisição pública.
+  if (ehRotaCliente || ehRotaAdmin || pathname === "/login") {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("papel")
+      .eq("id", user.id)
+      .single();
+
+    const acessaAdmin =
+      profile?.papel === "admin" ||
+      profile?.papel === "operador" ||
+      profile?.papel === "vendedor";
+
+    if (pathname === "/login") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/pos-login";
+      return NextResponse.redirect(url);
+    }
+
+    if (ehRotaAdmin && !acessaAdmin) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/app";
+      return NextResponse.redirect(url);
+    }
+
+    if (ehRotaCliente && acessaAdmin) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin";
+      return NextResponse.redirect(url);
+    }
+  }
 
   return supabaseResponse;
 }
+
+// Mantido exportado para uso em testes/documentação de quais rotas são públicas.
+export { ROTAS_PUBLICAS };

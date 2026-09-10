@@ -12,13 +12,12 @@ const config: Config = {
       center: true,
       padding: "1rem",
       screens: {
-        "2xl": "1400px",
+        "2xl": "1240px", // design/IDENTIDADE.md 5.1: conteúdo até 1240px
       },
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+        sans: ["var(--font-sans)"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -54,15 +53,34 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Cores semânticas de status usadas em badges de veículo/aporte/notificação.
-        sucesso: "hsl(var(--sucesso))",
-        alerta: "hsl(var(--alerta))",
-        info: "hsl(var(--info))",
+        // Tokens de marca — design/IDENTIDADE.md seção V2.1. Usar estes
+        // nomes diretamente (bg-vermelho, text-azul-claro, bg-superficie).
+        base: "hsl(var(--base))",
+        superficie: "hsl(var(--superficie))",
+        elevado: "hsl(var(--elevado))",
+        vermelho: "hsl(var(--vermelho))",
+        "vermelho-fundo": "hsl(var(--vermelho-fundo))",
+        "azul-profundo": "hsl(var(--azul-profundo))",
+        "azul-claro": "hsl(var(--azul-claro))",
+        branco: "hsl(var(--branco))",
+        "cinza-texto": "hsl(var(--cinza-texto))",
+        "cinza-inativo": "hsl(var(--cinza-inativo))",
+        ambar: "hsl(var(--ambar))",
+        vinho: "hsl(var(--vinho))",
+        "vinho-contorno": "hsl(var(--vinho-contorno))",
       },
       borderRadius: {
+        // design/IDENTIDADE.md V2.2: raio reintroduzido em escala.
+        DEFAULT: "var(--radius)",
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "var(--radius)",
+        sm: "var(--radius-sm)",
+        pill: "var(--radius-pill)",
+      },
+      boxShadow: {
+        card: "var(--sombra-card)",
+        elevado: "var(--sombra-elevado)",
+        vermelho: "var(--sombra-vermelho)",
       },
       keyframes: {
         "accordion-down": {
@@ -73,10 +91,23 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        // Preenchimento da barra de progresso — design/IDENTIDADE.md 6.2.
+        "barra-preenche": {
+          from: { width: "0%" },
+        },
+        // Pulso único de borda quando um veículo entra no bloco de veredito.
+        "pulso-borda": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.4" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulso-borda": "pulso-borda 500ms ease-in-out",
+      },
+      transitionTimingFunction: {
+        barra: "cubic-bezier(.22,.7,.3,1)",
       },
     },
   },

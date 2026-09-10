@@ -44,3 +44,14 @@ yarn-error.log*
 # editores
 .idea
 *.swp
+
+# Vercel
+.vercel
+
+# env — só o .example é versionado
+.env
+.env.local
+.env.*.local
+
+# Claude Code — config/agents locais da máquina
+.claude/
